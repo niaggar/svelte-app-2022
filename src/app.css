@@ -1,0 +1,28 @@
+:root {
+	--gray: rgb(36, 36, 36);
+	--white: rgb(252, 252, 252);
+	--yellow: rgb(240, 193, 73);
+	--orange: rgb(242, 100, 63);
+	--green-w: rgb(86, 184, 179);
+	--green-w2: rgb(209 249 246);
+	--green-b: rgb(40, 112, 107);
+}
+
+*,
+*::after,
+*::before {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Noto Sans', sans-serif;
+}
+
+body {
+	font-size: 16px;
+	font-family: 'Noto Sans', sans-serif;
+	position: relative;
+}
