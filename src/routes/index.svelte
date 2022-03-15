@@ -1,8 +1,6 @@
-
 <script>
 	// import Counter from '$lib/Counter.svelte';
 </script>
-
 
 
 <svelte:head>
@@ -12,7 +10,6 @@
 <section>
 
 </section>
-
 
 
 <style>

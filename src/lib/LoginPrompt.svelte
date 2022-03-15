@@ -90,5 +90,4 @@
     50% {transform: translate(-50%, -2%) rotateZ(180deg);}
     100% {transform: translate(-50%, 0%) rotateZ(360deg);}
   }
-
 </style>

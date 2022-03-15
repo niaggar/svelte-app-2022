@@ -1,40 +1,40 @@
 <script>
+	import { fade } from 'svelte/transition';
 	import Header from '$lib/Header.svelte';
 	import LoginPrompt from '$lib/LoginPrompt.svelte';
 	import '../app.css';
 
+	
 	let isLogined = false;
-	let loading = true;
+	let isLoaded = false;
+
 
 	setTimeout(() => {
-		loading = false;
+		isLoaded = true;
 		isLogined = false;
-	}, 500);
+	}, 1000);
 </script>
 
 
+<svelte:head>
+	<title>SISTEAM 2022</title>
+</svelte:head>
 
-{#if loading}
-	<div class="loading">
-		<h1>Cargando informacion</h1>
-	</div>
-{:else}
-
+{#if isLoaded}
 	{#if isLogined}
 		<Header />
 		<main class="is-login">
 			<slot />
 		</main>
 	{:else}
-		<main class="not-login">
+		<main in:fade class="not-login">
 			<LoginPrompt />
 		</main>
 	{/if}
-
+{:else}
+	<main class="loading">
+	</main>
 {/if}
-
-
-
 
 
 <style>
@@ -50,5 +50,9 @@
 
 	main.is-login {
 		background-color: var(--white);
+	}
+
+	main.loading {
+		background-color: var(--green-b);
 	}
 </style>
