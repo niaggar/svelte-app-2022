@@ -1,40 +1,57 @@
 <script>
+	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import Header from '$lib/Header.svelte';
-	import LoginPrompt from '$lib/LoginPrompt.svelte';
+	import { goto } from '$app/navigation';
+	import { getAuth, onAuthStateChanged  } from 'firebase/auth';
+	import '$lib/firebase/firebase.js';
 	import '../app.css';
 
+	import LoginPrompt from '$lib/LoginPrompt.svelte';
+
 	
-	let isLogined = false;
-	let isLoaded = false;
+  let verifyUserPromise = Promise.resolve({ isLogin: false });
 
+  const startUserVerification = () => {
+    let auth = getAuth();
 
-	setTimeout(() => {
-		isLoaded = true;
-		isLogined = false;
-	}, 1000);
+    verifyUserPromise = new Promise((resolve, reject) => {
+      onAuthStateChanged(auth, (user) => {
+				if (user) {
+          let name = user.displayName || '';
+        
+        	if (name.length > 0) {
+						let userUrl = name.replace(/\s+/g, '').toLowerCase();
+						goto(`/${userUrl}/home`);
+						return resolve({ isLogin: true });
+					}
+				}
+        
+        goto('/');
+        return resolve({ isLogin: false });
+      });
+    });
+  };
+
+  onMount(startUserVerification);
 </script>
+
 
 
 <svelte:head>
 	<title>SISTEAM 2022</title>
 </svelte:head>
 
-{#if isLoaded}
-	{#if isLogined}
-		<Header />
-		<main class="is-login">
-			<slot />
-		</main>
-	{:else}
+{#await verifyUserPromise}
+	<main class="loading">
+	</main>
+{:then { isLogin }}
+	{#if !isLogin}
 		<main in:fade class="not-login">
 			<LoginPrompt />
 		</main>
 	{/if}
-{:else}
-	<main class="loading">
-	</main>
-{/if}
+{/await}
+
 
 
 <style>
@@ -47,11 +64,7 @@
 	main.not-login {
 		background-color: var(--green-b);
 	}
-
-	main.is-login {
-		background-color: var(--white);
-	}
-
+	
 	main.loading {
 		background-color: var(--green-b);
 	}

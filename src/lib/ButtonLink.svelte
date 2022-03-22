@@ -12,11 +12,12 @@
   a {
     color: var(--gray);
     width: 100%;
-    padding: 0.6em;
+    padding: 0.6rem;
     text-decoration: none;
-    border-radius: 0.5em;
-    margin: 0.5em 0em 0em 0em;
+    border-radius: 0.5rem;
+    margin: 0.5rem 0rem 0rem 0rem;
     text-align: center;
+    font-size: 16px;
   }
   
   a.yellow {
@@ -25,6 +26,7 @@
 
   a.orange {
     background-color: var(--orange);
+    color: #fff;
   }
 
   a.green {

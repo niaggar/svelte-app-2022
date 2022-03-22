@@ -1,22 +1,47 @@
 <script>
+  import { goto } from '$app/navigation';
   import { createUserWithEmail } from '$lib/firebase/services';
+  import { getAuth, onAuthStateChanged  } from 'firebase/auth';
+  import { onMount } from 'svelte';
+	import '$lib/firebase/firebase.js';
+	import '../../app.css';
 
-
+	
   let name = '';
   let email = '';
   let password = '';
+  let unsuscriptionAuthState = undefined;
+	
+  const startUserVerification = () => {
+    const auth = getAuth();
+
+    unsuscriptionAuthState = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        let name = user.displayName || '';
+        
+        if (name.length > 0) {
+          let userUrl = `/${name.replace(/\s+/g, '').toLowerCase()}/home`;
+          goto(userUrl);
+        }
+      }
+    });
+  }
 
   const handleSubmintSignin = async () => {
-    const userData = {
-      name,
-      email,
-      password,
-    };
+    unsuscriptionAuthState();
 
-    let { succes, user, err } = await createUserWithEmail(userData).catch(err => err);
+    const userData = { name, email, password };
+    const { success, user, err } = await createUserWithEmail(userData).catch(err => err);
 
-    // if (succes)
+    if (success) {
+      let userUrl = `/${user.user.displayName.replace(/\s+/g, '').toLowerCase()}/`;
+      setTimeout(() => goto(userUrl), 1000);
+    } else {
+      alert(err);
+    }
   };
+
+  onMount(startUserVerification);
 </script>
 
 
