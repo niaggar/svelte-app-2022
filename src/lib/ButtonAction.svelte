@@ -23,6 +23,12 @@
     border: none;
     font-size: 16px;
     font-family: "Noto Sans", sans-serif;
+    cursor: pointer;
+  }
+
+  button:hover {
+    filter: saturate(1.5);
+    filter: contrast(1.5);
   }
   
   button.yellow {
@@ -30,11 +36,19 @@
   }
 
   button.orange {
-    background-color: var(--orange);
-    color: #fff;
+    background-color: rgb(245, 196, 184);
+    border: 2px solid rgb(223, 80, 44);
+    color: rgb(136, 43, 19);
   }
 
   button.green {
     background-color: var(--green-w);
+  }
+
+  button.gray {
+    background-color: rgb(231, 231, 231);
+    text-align: left;
+    padding-left: 1rem;
+    border: 2px solid rgb(126, 126, 126) ;
   }
 </style>

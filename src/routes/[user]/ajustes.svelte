@@ -1,5 +1,4 @@
 <script>
-  import ButtonLink from '$lib/ButtonLink.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
   import { getAuth, signOut } from 'firebase/auth';
 
@@ -12,8 +11,11 @@
 
 
 <div class='container'>
-  <h1>Pagina de configuracion</h1>
-  <ButtonLink visibleText='prueba de boton' type='orange'/>
+  <h1>Configuracion</h1>
+  <ButtonAction visibleText='Cambiar nombre de usuario' type='gray' action={() => {}}/>
+  <ButtonAction visibleText='Privacidad de las mediciones' type='gray' action={() => {}}/>
+  <ButtonAction visibleText='Cerrar sesion' type='gray' action={() => {}}/>
+
   <ButtonAction visibleText='Cerrar sesion' type='orange' action={logout}/>
 </div>
 
@@ -26,7 +28,13 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 1rem;
+    padding: 30vh 1rem 0rem 1rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+    opacity: rgb(92, 92, 92);
   }
 </style>

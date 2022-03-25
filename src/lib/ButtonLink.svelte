@@ -19,6 +19,11 @@
     text-align: center;
     font-size: 16px;
   }
+
+  a:hover {
+    filter: saturate(1.5);
+    filter: contrast(1.5);
+  }
   
   a.yellow {
     background-color: var(--yellow);
