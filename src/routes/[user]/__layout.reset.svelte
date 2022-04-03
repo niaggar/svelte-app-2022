@@ -7,7 +7,6 @@
 
   import NavLink from '$lib/NavLink.svelte';
 
-
   let isTheUserCorrect = false;
   let verifyUserPromise = Promise.resolve({ isOkey: false });
 
@@ -57,3 +56,12 @@
     </main>
   {/if}
 {/await}
+
+
+<style>
+  main {
+		padding: 1.5rem 0.5rem 5.5rem 0.5rem;
+		min-height: 100vh;
+		background-color: #e9e9e9;
+	}
+</style>

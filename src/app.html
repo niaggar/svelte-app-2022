@@ -8,9 +8,19 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+
+		<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB2C3I381d4B2hwOOOJVyJfG7Bwy8DxA1E&callback=initMap">
+		</script>
 		%svelte.head%
 	</head>
 	<body>
 		<div>%svelte.body%</div>
+		<script defer>
+			window.initMap = function ready() {
+				console.log('Mapa cargado');
+			}
+		</script>
+
+		<!-- <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB2C3I381d4B2hwOOOJVyJfG7Bwy8DxA1E"></script> -->
 	</body>
 </html>

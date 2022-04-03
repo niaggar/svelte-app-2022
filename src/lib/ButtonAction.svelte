@@ -32,7 +32,9 @@
   }
   
   button.yellow {
-    background-color: var(--yellow);
+    background-color: rgb(245, 233, 204);
+    border: 2px solid rgb(187, 137, 11);
+    color: rgb(100 72 0);
   }
 
   button.orange {
@@ -42,11 +44,19 @@
   }
 
   button.green {
-    background-color: var(--green-w);
+    background-color: rgb(164, 199, 197);
+    border: 2px solid rgb(40, 112, 107);
   }
 
   button.gray {
-    background-color: rgb(231, 231, 231);
+    background-color: rgb(197, 197, 197);
+    text-align: left;
+    padding-left: 1rem;
+    border: 2px solid rgb(126, 126, 126) ;
+  }
+
+  button.white {
+    background-color: rgb(255, 255, 255);
     text-align: left;
     padding-left: 1rem;
     border: 2px solid rgb(126, 126, 126) ;

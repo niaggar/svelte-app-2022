@@ -1,21 +1,15 @@
-import { getApp } from 'firebase/app';
 import { getAuth, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import './firebase.js';
 
 
-const firebaseApp = getApp();
 const firebaseAuth = getAuth();
 
 
 export function loginWithEmail({ email, password }) {
   return new Promise((res, rej) => {    
     signInWithEmailAndPassword(firebaseAuth, email, password)
-      .then(user => {
-        res({ success: true, user, err: null });
-      })
-      .catch(err => {
-        rej({ success: false, user: null, err });
-      });
+      .then(user => res({ success: true, user, err: null }))
+      .catch(err => rej({ success: false, user: null, err }));
   });
 }
 
@@ -28,9 +22,7 @@ export function createUserWithEmail({ email, password, name }) {
           .then(() => res({ success: true, user, err: null }))
           .catch(err => rej({ success: false, user: null, err: 'Error actualizando informacion.' }));
       })
-      .catch(err => {
-        rej({ success: false, user: null, err });
-      });
+      .catch(err => rej({ success: false, user: null, err }));
   });
 }
 

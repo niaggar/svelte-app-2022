@@ -33,7 +33,7 @@
 
     if (success) {
 			let userUrl = `/${user.user.displayName.replace(/\s+/g, '').toLowerCase()}/`;
-      setTimeout(() => goto(userUrl), 1000);
+      setTimeout(() => goto(userUrl), 500);
     } else {
       alert(err);
     }
