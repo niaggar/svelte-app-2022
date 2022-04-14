@@ -3,7 +3,7 @@
   import Section from '$lib/Section.svelte';
   import DataTable from '$lib/DataTable.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
-  import { getUserData, saveUserData } from '$lib/firebase/firestore.js';
+  import { getUserData, saveUserData, saveGlobalData } from '$lib/firebase/firestore.js';
   import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/convertData.js';
   import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController.js';
   import { getAuth } from 'firebase/auth';
@@ -48,16 +48,16 @@
 
     let receivedString = String.fromCharCode.apply(null, receivedData).replace(/(\r\n|\n|\r)/gm, "");
 
-    if(receivedString == 'init') {
+    if (receivedString == 'init') {
       newRawData = [];
     } else if (receivedString == 'final') {
-      let values = await convertRawData(newRawData);
-
       getLastMeasurementPromise = new Promise(async (res, rej) => {
+        let values = await convertRawData(newRawData);
         let newMeasure = await createNewMeassure(values).catch((err) => rej({ err }));
 
         let userUid = getAuth().currentUser.uid;
         await saveUserData({ uid: userUid, city: 'prueba', data: newMeasure }).catch((err) => rej({ err }));
+        await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
         res({ data: [ newMeasure ] });
       });

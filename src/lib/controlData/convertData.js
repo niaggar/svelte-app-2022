@@ -1,5 +1,6 @@
 import { geohashForLocation } from 'geofire-common';
-import { GeoPoint, Timestamp } from 'firebase/firestore';
+import { Timestamp } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 const DATA_MODEL = [
   {
@@ -81,11 +82,12 @@ export function createNewMeassure(data) {
         let long = position.coords.longitude;
 
         const hash = geohashForLocation([lat, long]);
+        const user = getAuth().currentUser;
 
         let finalData = {
           city: 'Prueba',
           country: 'Prueba',
-          user: 'test-user',
+          user: user.displayName,
           geo: {
             hash: hash,
             lat: lat,
@@ -93,7 +95,8 @@ export function createNewMeassure(data) {
           },
           createdAt: Timestamp.now(),
           data: data,
-        }
+        };
+
         res({ ...finalData });
       });
 

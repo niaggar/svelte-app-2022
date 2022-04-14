@@ -1,26 +1,62 @@
 <script>
   import { onMount } from 'svelte';
+  import { getDataUsingGeoHash } from '$lib/firebase/firestore.js';
   import * as L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
+  
   let map;
 
+  const circleColors = {
+    low: '#28706C',
+    normal: '#F1C24A',
+    high: '#F3643F',
+  };
 
-  function createMap(container) {
-    map = L.map('map').setView([51.505, -0.09], 13);
+  function createMap() {
+    try {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        let latOr = position.coords.latitude;
+        let longOr = position.coords.longitude;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+        map = L.map('map');
+        map.setView([latOr, longOr], 17);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        const messures = await getDataUsingGeoHash({ count: 5 });
+
+        console.log(messures);
+
+        messures.data.forEach(({ level, geo: { lat, lng } }) => {
+          console.log(level);
+          
+          const circle = L.circle([lat, lng], {
+            color: circleColors[level],
+            fillColor: circleColors[level],
+            fillOpacity: 0.5,
+            radius: 400
+          }).addTo(map);
+        });
+      });
+
+    } catch (err) { }
   }
 
-  function mapAction(container) {
-    createMap(container);
+  function mapAction(con) {
+    createMap(con);
+    
     return {
       destroy: () => {
         map.remove();
       },
     };
   }
+
+  onMount(() => {
+    
+  });
 </script>
 
 
