@@ -110,12 +110,17 @@
     background-color: rgb(113, 181, 170);
     box-shadow: 0px 0px 10px 0px rgba(24, 50, 45, 0.678);
 		z-index: 999;
+    height: 100px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
   }
 
   div {
     width: 100%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    grid-auto-flow: column;
   }
 
   a {

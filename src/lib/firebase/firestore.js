@@ -10,6 +10,7 @@ import {
   getFirestore
 } from 'firebase/firestore';
 import { geohashQueryBounds, distanceBetween } from 'geofire-common';
+import './firebase.js';
 
 
 
@@ -107,7 +108,7 @@ export function getDataUsingGeoHash({ count = 1 }) {
   
           res({ success: true, data: matchingDocs });
         });
-      });
+      }, (err) => rej({ success: false, err }));
     } catch (error) {
       rej({ success: false, err: error });
     }

@@ -24,7 +24,6 @@
 
             if (path.includes(userUrl)) {
               isTheUserCorrect = true;
-              console.log(userUrl, path);
               return resolve({ isOkey: true, user: userUrl });
             }
           }
