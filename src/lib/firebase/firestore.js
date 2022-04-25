@@ -82,29 +82,39 @@ export function getDataUsingGeoHash({ count = 1 }) {
         Promise.all(promises).then((snapshots) => {
           const matchingDocs = [];
           let lastPositionDoc = undefined;
+          let otherDocs = [];
   
           for (const snap of snapshots) {
             for (const doc of snap.docs) {
               const data = doc.data();
-              const { geo: { lat: latDoc, lng: lngDoc } } = data;
-              let isUniqueToOtherDocs = true;
-  
-              if (lastPositionDoc != undefined) {
-                const distanceWithOtherDocs = distanceBetween([latDoc, lngDoc], lastPositionDoc);
-                const distanceInMWithOtherDocs = distanceWithOtherDocs * 1000;
-  
-                isUniqueToOtherDocs = distanceInMWithOtherDocs > 20;
-              }
-              
-              const distanceInKm = distanceBetween([latDoc, lngDoc], center);
-              const distanceInM = distanceInKm * 1000;
-  
-              if (distanceInM <= radiusInM && isUniqueToOtherDocs) {
-                matchingDocs.push(data);
-                lastPositionDoc = [latDoc, lngDoc];
-              }
+              otherDocs.push(data);
             }
           }
+
+          otherDocs.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate())
+
+          for (const doc of otherDocs) {
+            const { geo: { lat: latDoc, lng: lngDoc } } = doc;
+            let isUniqueToOtherDocs = true;
+
+            if (lastPositionDoc != undefined) {
+              const distanceWithOtherDocs = distanceBetween([latDoc, lngDoc], lastPositionDoc);
+              const distanceInMWithOtherDocs = distanceWithOtherDocs * 1000;
+
+              isUniqueToOtherDocs = distanceInMWithOtherDocs > 20;
+            }
+            
+            const distanceInKm = distanceBetween([latDoc, lngDoc], center);
+            const distanceInM = distanceInKm * 1000;
+
+            if (distanceInM <= radiusInM && isUniqueToOtherDocs) {
+              matchingDocs.push(doc);
+              lastPositionDoc = [latDoc, lngDoc];
+            }
+          }
+
+          console.log(matchingDocs);
+          console.log(otherDocs);
   
           res({ success: true, data: matchingDocs });
         });

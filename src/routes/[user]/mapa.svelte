@@ -44,7 +44,7 @@
   };
 
   onMount(async () => {
-    const promises = [getDataUsingGeoHash({ count: 5 }), createMap()];
+    const promises = [getDataUsingGeoHash({ count: 30 }), createMap()];
     const [{ success, data }] = await Promise.all(promises);
 
     if (success) {

@@ -20,7 +20,8 @@
   const handleHistoryClick = () => {
     let user = getAuth().currentUser;
     getHistoryMeasurementsPromise = new Promise(async (res, rej) => {
-      let r = await getUserData({ uid: user.uid, city: 'prueba', count: 5 }).catch(
+      let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+      let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch(
         (err) => rej({ err })
       );
 
