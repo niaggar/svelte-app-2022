@@ -1,27 +1,154 @@
 <script>
-  import DataTable from '$lib/DataTable.svelte';
   import Card from '$lib/Card.svelte';
   import Section from '$lib/Section.svelte';
+  import DataTable from '$lib/DataTable.svelte';
+  import ButtonLink from '$lib/ButtonLink.svelte';
+  import ButtonAction from '$lib/ButtonAction.svelte';
+  import { getUserData } from '$lib/firebase/firestore.js';
+  import { getAuth } from 'firebase/auth';
+  import { onMount } from 'svelte';
+  import '$lib/firebase/firebase.js';
 
-  const data = [
-    { name: 'Contamiacion auditiva', unit: 'cm', value: 100, level: 'nor'},
-    { name: 'CO2 en el aire', unit: 'cm', value: 100, level: 'hig'},
-    { name: 'Nivel de rayos UV', unit: 'cm', value: 100, level: 'nor'},
-    { name: 'Contaminacion termica', unit: 'cm', value: 100, level: 'med'},
-  ]
+  let getLastMeasurementPromise = Promise.resolve({ data: null });
+  let userRouteToDoNewMeasurement = '';
+  let seeTutorial = false;
+
+  onMount(async () => {
+    let user =  getAuth().currentUser;
+
+    userRouteToDoNewMeasurement = `/${user.displayName.replace(/\s+/g, '').toLowerCase()}/estadisticas`;
+    getLastMeasurementPromise = getUserData({ uid: user.uid, city: 'prueba' });
+  });
 </script>
 
 
-<Section title="Resultados de la ultima medicion">
+<Section title="Bienvenida">
   <Card>
-    <DataTable data={data} />
+    <h2>[Nombre app] te da la bienvenida</h2>
+    <p>
+      Para comenzar a utilizar la aplicacion te recomendamos que leas el siguiente tutorial:
+    </p>
+
+    <br/>
+
+    {#if !seeTutorial}
+      <ButtonAction
+        action={() => seeTutorial = true}
+        visibleText="Ver tutorial"
+        type="white"
+      />
+    {:else}
+      <Card>
+        <dl>
+          <dt>Como realizar el control de tu entorno?</dt>
+          <dd>
+            <p>Para realizar esto tendras que tener a la mano tu dispositivo, 
+              ahora dirigite a la seccion de mediciones desde donde podras conectar el dispositivo y 
+              automaticamente este recolectara los datos del entorno en donde te encuentras. </p>
+          </dd>
+        </dl>
+
+        <dl>
+          <dt>Como ver el mapa con los datos?</dt>
+          <dd>
+            <p>Dirigete a la seccion del mapa, aqui encontraras el mapa del mundo donde podras visualizar
+              graficamente las condicioens medioambientales de la zona sercana a donde estas.</p>
+            <p>Los datos que podras ver son los tomados por todos los usuarios de [Nombre app] que esten 
+              mas actualizados y puedan ser de tu interes.</p>
+          </dd>
+        </dl>
+
+        <dl>
+          <dt>Deseas conocer mas sobre temas medioambientales?</dt>
+          <dd>
+            <p>Te invitamos a que revises las pequenas publicaciones que se encuentran en las seccion de noticias,
+              aqui podras encontrar informacion sobre temas como la contaminacion, el agua, el clima, etc.</p>
+            <p>Pero si realmente te apasiona el tema, te animamos a que revises articulos cientificos que traten el tema con mayor profundidad.</p>
+          </dd>
+        </dl>
+
+        <ButtonAction
+          action={() => seeTutorial = false}
+          visibleText="Ocultar tutorial"
+          type="white"
+        />
+      </Card>
+    {/if}
+  </Card>
+</Section>
+
+
+<Section title="Ultima medición">
+  <Card>
+    {#await getLastMeasurementPromise}
+      <p>Cargando...</p>
+    {:then { data }}
+      {#if data.length > 0}
+        <DataTable data={data[0].data} />
+      {:else}
+        <p>Parece que no hay mediciones almacenadas...</p>
+      {/if}
+    {:catch { err }}
+      <p>Error al cargar la ultima medición</p>
+    {/await}
   </Card>
 
   <Card>
-    <p>Ir a tomar una nueva medicion.</p>
+    {#await getLastMeasurementPromise}
+      <p>Cargando...</p>
+    {:then { data }}
+      {#if data.length > 0 }
+        <p>
+          Ultima medicion realizada el {data[0].createdAt.toDate().toLocaleString()}
+        </p>
+      {:else}
+        <p>Tadavia no tienes mediciones, dirigete a la pagina de mediciones y realiza tu primera!</p>
+      {/if}
+    {:catch { err }}
+      <p>Error al cargar la ultima medición</p>
+    {/await}
+
+    <ButtonLink
+      route={userRouteToDoNewMeasurement}
+      visibleText="Ir a realizar una medición ahora"
+      type="yellow"
+    />
+  </Card>
+</Section>
+
+
+<Section title="Noticias">
+  <Card>
+    {#await getLastMeasurementPromise}
+      <p>Cargando...</p>
+    {:then { data }}
+      {#if data.length > 0}
+        <DataTable data={data[0].data} />
+      {:else}
+        <p>Parece que no hay mediciones almacenadas...</p>
+      {/if}
+    {:catch { err }}
+      <p>Error al cargar la ultima medición</p>
+    {/await}
   </Card>
 </Section>
 
 
 <style>
+  dt {
+    font-size: 1rem;
+    font-weight: 400;
+    margin-bottom: 0.4rem;
+    color: rgb(153 74 55);
+  }
+
+  dl {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 0.6rem;
+  }
+
+  dd {
+    color: #666;
+  }
 </style>

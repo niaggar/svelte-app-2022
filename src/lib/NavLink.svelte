@@ -108,7 +108,7 @@
     left: 0;
     right: 0;
     background-color: rgb(113, 181, 170);
-    box-shadow: 0px 0px 10px 0px rgba(24, 50, 45, 0.678);
+    box-shadow: 0 0 3px 0 #66666670;
 		z-index: 999;
     height: 100px;
     display: flex;

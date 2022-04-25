@@ -97,7 +97,7 @@
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
     {:then { data }}
-      {#if data.lenght > 0 }
+      {#if data.length > 0 }
         <p>
           Ultima medicion realizada el {data[0].createdAt
             .toDate()

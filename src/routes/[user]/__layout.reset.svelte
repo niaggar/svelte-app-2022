@@ -59,7 +59,7 @@
 
 <style>
   main {
-		padding: 1.5rem 0.5rem 5.5rem 0.5rem;
+		padding: 1.5rem 0.5rem 120px 0.5rem;
 		min-height: 100vh;
 		background-color: #e9e9e9;
 	}
