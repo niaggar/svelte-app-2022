@@ -5,11 +5,13 @@
   import ButtonLink from '$lib/ButtonLink.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
   import { getUserData } from '$lib/firebase/firestore.js';
+  import { variables } from '$lib/variables';
   import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
   import '$lib/firebase/firebase.js';
 
-  let getLastMeasurementPromise = Promise.resolve({ data: null });
+
+  let getLastMeasurementPromise = Promise.resolve({ data: [] });
   let userRouteToDoNewMeasurement = '';
   let seeTutorial = false;
 
@@ -17,7 +19,8 @@
     let user =  getAuth().currentUser;
 
     userRouteToDoNewMeasurement = `/${user.displayName.replace(/\s+/g, '').toLowerCase()}/estadisticas`;
-    getLastMeasurementPromise = getUserData({ uid: user.uid, city: 'prueba' });
+    let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+    getLastMeasurementPromise = getUserData({ uid: user.uid, city });
   });
 </script>
 
@@ -40,7 +43,7 @@
     {:else}
       <Card>
         <dl>
-          <dt>Como realizar el control de tu entorno?</dt>
+          <dt><h3>Como realizar el control de tu entorno?</h3></dt>
           <dd>
             <p>Para realizar esto tendras que tener a la mano tu dispositivo, 
               ahora dirigite a la seccion de mediciones desde donde podras conectar el dispositivo y 
@@ -49,7 +52,7 @@
         </dl>
 
         <dl>
-          <dt>Como ver el mapa con los datos?</dt>
+          <dt><h3>Como ver el mapa con los datos?</h3></dt>
           <dd>
             <p>Dirigete a la seccion del mapa, aqui encontraras el mapa del mundo donde podras visualizar
               graficamente las condicioens medioambientales de la zona sercana a donde estas.</p>
@@ -59,7 +62,7 @@
         </dl>
 
         <dl>
-          <dt>Deseas conocer mas sobre temas medioambientales?</dt>
+          <dt><h3>Deseas conocer mas sobre temas medioambientales?</h3></dt>
           <dd>
             <p>Te invitamos a que revises las pequenas publicaciones que se encuentran en las seccion de noticias,
               aqui podras encontrar informacion sobre temas como la contaminacion, el agua, el clima, etc.</p>

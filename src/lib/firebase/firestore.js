@@ -22,7 +22,7 @@ export function getUserData({ uid, city, count = 1 }) {
     const userDataRef = collection(db, 'user-data', uid, city);
 
     const q = query(userDataRef, orderBy('createdAt', 'desc'), limit(count));
-    const docs = await getDocs(q).catch((err) => rej({ success: false, err }));
+    const docs = await getDocs(q).catch((err) => rej({ success: false, err, data: null }));
 
     res({ success: true, data: docs.docs.map((doc) => doc.data()) });
   });

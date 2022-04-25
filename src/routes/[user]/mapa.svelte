@@ -12,13 +12,6 @@
     normal: '#F1C24A',
     high: '#F3643F',
   };
-
-  const TRANSALTE_MEASURES = {
-    low: 'Bajo',
-    normal: 'Normal',
-    high: 'Alto',
-  };
-
   const TRANSLATE_NAMES = {
     pressure: 'Presión',
     humidity: 'Humedad',
@@ -190,7 +183,6 @@
     });
   }
 </script>
-
 
 <div id="map" />
 

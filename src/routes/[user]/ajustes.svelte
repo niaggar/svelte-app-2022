@@ -23,12 +23,11 @@
 
 <style>
   .container {
-    min-height: 100vh;
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 30vh 1rem 0rem 1rem;
+    padding: 20vh 1rem 0rem 1rem;
   }
 
   h1 {

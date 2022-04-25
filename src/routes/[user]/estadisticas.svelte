@@ -6,12 +6,13 @@
   import { getUserData, saveUserData, saveGlobalData } from '$lib/firebase/firestore.js';
   import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/convertData.js';
   import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController.js';
+  import { variables } from '$lib/variables';
   import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
   import '$lib/firebase/firebase.js';
 
-  let getLastMeasurementPromise = Promise.resolve({ data: null });
-  let getHistoryMeasurementsPromise = Promise.resolve({ data: null });
+  let getLastMeasurementPromise = Promise.resolve({ data: [] });
+  let getHistoryMeasurementsPromise = Promise.resolve({ data: [] });
   let newRawData = [];
 
 
@@ -52,11 +53,13 @@
       newRawData = [];
     } else if (receivedString == 'final') {
       getLastMeasurementPromise = new Promise(async (res, rej) => {
-        let values = await convertRawData(newRawData);
-        let newMeasure = await createNewMeassure(values).catch((err) => rej({ err }));
-
         let userUid = getAuth().currentUser.uid;
-        await saveUserData({ uid: userUid, city: 'prueba', data: newMeasure }).catch((err) => rej({ err }));
+        let { city, country } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json()).catch((err) => rej({ err }));
+
+        let values = await convertRawData(newRawData);
+        let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
+
+        await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch((err) => rej({ err }));
         await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
         res({ data: [ newMeasure ] });
@@ -70,7 +73,9 @@
 
   onMount(async () => {
     let user = getAuth().currentUser;
-    getLastMeasurementPromise = getUserData({ uid: user.uid, city: 'prueba' });
+
+    let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+    getLastMeasurementPromise = getUserData({ uid: user.uid, city: city });
   });
 </script>
 
@@ -121,10 +126,10 @@
     {#await getHistoryMeasurementsPromise}
       <p>Cargando...</p>
     {:then { data }}
-      {#if data}
+      {#if data.length > 0}
         <DataTable {data} />
       {:else}
-        <p>Parece que no hay mediciones almacenadas...</p>
+        <p>Actualiza el historico...</p>
       {/if}
     {:catch { err }}
       <p>Error al cargar el historico de mediciones</p>

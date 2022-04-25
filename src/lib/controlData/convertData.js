@@ -74,7 +74,7 @@ export function convertRawData(raw) {
 }
 
 
-export function createNewMeassure(data) {
+export function createNewMeassure({ data, city, country }) {
   return new Promise((res, rej) => {
     try {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -85,8 +85,8 @@ export function createNewMeassure(data) {
         const user = getAuth().currentUser;
 
         let finalData = {
-          city: 'Prueba',
-          country: 'Prueba',
+          city: city,
+          country: country,
           user: user.displayName,
           geo: {
             hash: hash,
