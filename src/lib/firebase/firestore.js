@@ -7,7 +7,10 @@ import {
   collection,
   addDoc,
   getDocs,
-  getFirestore
+  getDoc,
+  getFirestore,
+  updateDoc,
+  doc
 } from 'firebase/firestore';
 import { geohashQueryBounds, distanceBetween } from 'geofire-common';
 import './firebase.js';
@@ -29,13 +32,38 @@ export function getUserData({ uid, city, count = 1 }) {
 }
 
 
-export function saveUserData({ uid, city, data }) {
-  return new Promise((res, rej) => {
-    const userDataRef = collection(db, 'user-data', uid, city);
+export function getUserCities({ uid }) {
+  return new Promise(async (res, rej) => {
+    const userDocRef = doc(db, 'user-data', uid);
 
-    addDoc(userDataRef, data)
-      .then(() => res({ success: true, err: null }))
-      .catch((err) => rej({ success: false, err }));
+    const r = await getDoc(userDocRef).catch((err) => rej({ success: false, err, data: null }));
+    
+    let response = [];
+    for (const key in r.data()) {
+      response.push(r.data()[key]);
+    }
+
+    res({ success: true, data: response });
+  });
+}
+
+
+export function saveUserData({ uid, city, data }) {
+  return new Promise(async (res, rej) => {
+    const userDataRef = collection(db, 'user-data', uid, city);
+    const userDocRef = doc(db, 'user-data', uid);
+
+    await addDoc(userDataRef, data).catch((err) => rej({ success: false, err }));
+
+    await updateDoc(userDocRef, {
+      [city]: {
+        cityName: city,
+        country: data.country,
+        update: data.createdAt
+      }
+    });
+
+    res({ success: true, err: null });
   });
 }
 
@@ -112,10 +140,7 @@ export function getDataUsingGeoHash({ count = 1 }) {
               lastPositionDoc = [latDoc, lngDoc];
             }
           }
-
-          console.log(matchingDocs);
-          console.log(otherDocs);
-  
+          
           res({ success: true, data: matchingDocs });
         });
       }, (err) => rej({ success: false, err }));
