@@ -5,6 +5,54 @@
   import 'leaflet/dist/leaflet.css';
   import './mapLegends.css';
 
+
+  const getColor = (type, value) => {
+    const tempColor = (value) => {
+      if (value > 30) return '#F3643F'
+      if (value > 15) return '#F1C24A'
+      else return '#28706C'
+    }
+
+    const humeColor = (value) => {
+      if (value > 75) return '#F3643F'
+      if (value > 40) return '#F1C24A'
+      else return '#28706C'
+    }
+
+    const aireColor = (value) => {
+      if (value > 2.5) return '#F3643F'
+      if (value > 1.5) return '#F1C24A'
+      else return '#28706C'
+    }
+
+    const audiColor = (value) => {
+      if (value > 2.5) return '#F3643F'
+      if (value > 1.8) return '#F1C24A'
+      else return '#28706C'
+    }
+
+    const uvColor = (value) => {
+      if (value > 8) return '#F3643F'
+      if (value > 4) return '#F1C24A'
+      else return '#28706C'
+    }
+
+    switch (type) {
+      case 'temperatura':
+        return tempColor(value)
+      case 'humedad':
+        return humeColor(value)
+      case 'aire':
+        return aireColor(value)
+      case 'sonido':
+        return audiColor(value)
+      case 'uv':
+        return uvColor(value)
+    }
+
+  }
+
+
   let MAP;
   let MEASURES = [];
   const CIRCLE_COLORS = {
@@ -13,9 +61,11 @@
     high: '#F3643F',
   };
   const TRANSLATE_NAMES = {
-    pressure: 'Presión',
-    humidity: 'Humedad',
-    temperature: 'Temperatura',
+    aire: 'Contaminacion atmosferica',
+    humedad: 'Humedad del aire',
+    temperatura: 'Temperatura',
+    sonido: 'Contaminacion auditiva',
+    uv: 'Radiacion UV'
   }
 
   const createMap = () => {
@@ -34,7 +84,7 @@
           }).addTo(MAP);
 
           let marker = L.marker([latOr, longOr]).addTo(MAP);
-          marker.bindPopup(`<b>Tu estas aqui 😎</b>`).openPopup();
+          marker.bindPopup(`<b>Te encuentras aqui 😎</b>`).openPopup();
 
           res();
         },
@@ -56,15 +106,17 @@
   const render = () => {
     let temperatureLayerGroup = [];
     let humidityLayerGroup = [];
-    let pressureLayerGroup = [];
+    let aireLayerGroup = [];
+    let sonidoLayerGroup = [];
+    let uvLayerGroup = [];
 
     MEASURES.forEach(({ data, geo, createdAt }) => {
       const position = [geo.lat, geo.lng];
 
       data.forEach(({ level, type, unit, value }) => {
         let circle = L.circle(position, {
-          color: CIRCLE_COLORS[level],
-          fillColor: CIRCLE_COLORS[level],
+          color: getColor(type, value),
+          fillColor: getColor(type, value),
           fillOpacity: 0.5,
           radius: 100,
         }).bindPopup(`
@@ -81,23 +133,31 @@
         `);
 
         switch (type) {
-          case 'temperature':
+          case 'temperatura':
             temperatureLayerGroup.push(circle);
             break;
-          case 'humidity':
+          case 'humedad':
             humidityLayerGroup.push(circle);
             break;
-          case 'pressure':
-            pressureLayerGroup.push(circle);
+          case 'aire':
+            aireLayerGroup.push(circle);
+            break;
+          case 'sonido':
+            sonidoLayerGroup.push(circle);
+            break;
+          case 'uv':
+            uvLayerGroup.push(circle);
             break;
         }
       });
     });
 
     L.control.layers({
-      Temperature: L.layerGroup(temperatureLayerGroup),
-      Humidity: L.layerGroup(humidityLayerGroup),
-      Pressure: L.layerGroup(pressureLayerGroup),
+      'Temperatura': L.layerGroup(temperatureLayerGroup),
+      'Humedad': L.layerGroup(humidityLayerGroup),
+      'Contaminacion atmosferica': L.layerGroup(aireLayerGroup),
+      'Contaminacion auditiva': L.layerGroup(sonidoLayerGroup),
+      'Radiacion UV': L.layerGroup(uvLayerGroup),
     }).addTo(MAP);
 
     addLegendsToMap();
@@ -124,15 +184,15 @@
         let div = L.DomUtil.create('div', 'info legend');
 
         switch (name) {
-          case 'Temperature':
+          case 'Temperatura':
             div.innerHTML += `
               <h4>Niveles de temperatura</h4>
               <div>
-                <span>Baja (0 - 20 C)</span>
+                <span>Baja (-20 - 15 C)</span>
                 <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
               </div>
               <div>
-                <span>Normal (20 - 30 C)</span>
+                <span>Normal (15 - 30 C)</span>
                 <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
               </div>
               <div>
@@ -141,7 +201,7 @@
               </div>
             `;
             break;
-          case 'Humidity':
+          case 'Humedad':
             div.innerHTML += `
               <h4>Niveles de humedad</h4>
               <div>
@@ -158,24 +218,58 @@
               </div>
             `;
             break;
-          case 'Pressure':
+          case 'Radiacion UV':
             div.innerHTML += `
-              <h4>Niveles de presion</h4>
+              <h4>Niveles de Radiacion UV</h4>
               <div>
-                <span>Baja (0 - 1000 hPa)</span>
+                <span>Baja (0 - 4 uv)</span>
                 <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
               </div>
               <div>
-                <span>Normal (1000 - 1200 hPa)</span>
+                <span>Normal (4 - 8 uv)</span>
                 <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
               </div>
               <div>
-                <span>Alta (> 1200 hPa)</span>
+                <span>Alta (> 8 uv)</span>
                 <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
               </div>              
             `;
             break;
-        }
+          case 'Contaminacion atmosferica':
+            div.innerHTML += `
+              <h4>Niveles de contaminacion atmosferica</h4>
+              <div>
+                <span>Baja (0 - 1.5 V)</span>
+                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
+              </div>
+              <div>
+                <span>Normal (1.5 - 2.5 V)</span>
+                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
+              </div>
+              <div>
+                <span>Alta (> 2.5 V)</span>
+                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
+              </div>              
+            `;
+            break;
+          case 'Contaminacion auditiva':
+            div.innerHTML += `
+              <h4>Niveles de contaminacion auditiva</h4>
+              <div>
+                <span>Baja (0 - 1.8 V)</span>
+                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
+              </div>
+              <div>
+                <span>Normal (1.8 - 2.5 V)</span>
+                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
+              </div>
+              <div>
+                <span>Alta (> 2.5 V)</span>
+                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
+              </div>              
+            `;
+            break;
+          }
         return div;
       };
 

@@ -5,8 +5,8 @@
 
 <div class='container'>
   <div>
-    <h1>Bienvenid@ a <span>SISTEAM-APP 2022</span></h1>
-    <p>Para poder disfrutar de todas las funcionalidades te invitamios a que crees una nueva cuenta cuenta, o inicies sesion en una ya existente.</p>
+    <h1>Bienvenid@ a <span>EcoBox</span></h1>
+    <p>Para poder disfrutar de todas las funcionalidades te invitamos a que crees una nueva cuenta cuenta, o inicies sesion en una ya existente.</p>
   </div>
 
   <div>

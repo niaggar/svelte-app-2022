@@ -54,7 +54,7 @@
 
     if (receivedString == 'init') {
       newRawData = [];
-    } else if (receivedString == 'final') {
+    } else if (receivedString == 'end') {
       getLastMeasurementPromise = new Promise(async (res, rej) => {
         let userUid = getAuth().currentUser.uid;
         let { city, country } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json()).catch((err) => rej({ err }));
@@ -63,6 +63,7 @@
         let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
 
         await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch((err) => rej({ err }));
+        console.log("OKAY OKAY")
         await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
         res({ data: [ newMeasure ] });

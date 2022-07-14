@@ -1,93 +1,145 @@
 <script>
   export let data = {};
+
+  const DATA_MODEL = [
+    {
+      type: 'temperatura',
+      unit: 'C',
+      ref: 0,
+    },
+    {
+      type: 'humedad',
+      unit: '%',
+      ref: 0,
+    },
+    {
+      type: 'aire',
+      unit: 'volt',
+      ref: 1.5,
+    },
+    {
+      type: 'sonido',
+      unit: 'volt',
+      ref: 1.5,
+    },
+    {
+      type: 'uv',
+      unit: 'UV (mW/cm^2)',
+      ref: 'none',
+    },
+  ];
 </script>
 
-<table>
-  <thead>
-    <tr>
-      <th class="first-column" />
-      <th>N</th>
-      <th>M</th>
-      <th>A</th>
-      <th>Valor</th>
-    </tr>
-  </thead>
+{#each data as { type, unit, value, level }}
+  {#if type == 'temperatura'}
+  <div class="cont-value">
+    <p>Temperatura:</p>
+    <div class="cont-progress">
+      <div class="progress">
+        <div class="progress-value"
+          style="width: {(Number(value) + 30) * (100 / 90)}%;"
+        ></div>
+      </div>
+      <p class="value">{value} {unit}</p>
+    </div>
+  </div>
+  {/if}
 
-  <tbody>
-    {#each data as { type, unit, value, level }}
-      <tr>
-        <td class="first-column">{type}:</td>
+  {#if type == 'humedad'}
+  <div class="cont-value">
+    <p>Humedad:</p>
+    <div class="cont-progress">
+      <div class="progress">
+        <div class="progress-value"
+          style="width: {(Number(value)) * (100 / 100)}%;"
+        ></div>
+      </div>
+      <p class="value">{value} {unit}</p>
+    </div>
+  </div>
+  {/if}
 
-        <td class="nivel-column">
-          <div
-            class="nivel-circulo"
-            class:activo={level === 'low'}
-            style="color: #28706C;"
-          />
-        </td>
+  {#if type == 'aire'}
+  <div class="cont-value">
+    <p>Contaminacion atmosferica:</p>
+    <div class="cont-progress">
+      <div class="progress">
+        <div class="progress-value"
+          style="width: {(Number(value)) * (100 / 3)}%;"
+        ></div>
+      </div>
+      <p class="value">{value > 1.7 ? "Alto" : value > 1.5 ? "Normal" : "Bajo" }</p>
+    </div>
+  </div>
+  {/if}
 
-        <td class="nivel-column">
-          <div
-            class="nivel-circulo"
-            class:activo={level === 'normal'}
-            style="color: #F1C24A;"
-          />
-        </td>
+  {#if type == 'uv'}
+  <div class="cont-value">
+    <p>Radiacion UV:</p>
+    <div class="cont-progress">
+      <div class="progress">
+        <div class="progress-value"
+          style="width: {(Number(value)) * (100 / 15)}%;"
+        ></div>
+      </div>
+      <p class="value">{value} {unit}</p>
+    </div>
+  </div>
+  {/if}
 
-        <td class="nivel-column">
-          <div
-            class="nivel-circulo"
-            class:activo={level === 'high'}
-            style="color: #F3643F;"
-          />
-        </td>
-
-        <td class="valor-column">{value} {unit}</td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
+  {#if type == 'sonido'}
+  <div class="cont-value">
+    <p>Contaminacion acustica:</p>
+    <div class="cont-progress">
+      <div class="progress">
+        <div class="progress-value"
+          style="width: {(Number(value) - 1) * (100 / 2)}%;"
+        ></div>
+      </div>
+      <p class="value">{value > 2.5 ? "Muy alto" : value > 1.8 ? "Alto" : value > 1.5 ? "Normal" : "Bajo" }</p>
+    </div>
+  </div>
+  {/if}
+{/each}
 
 <style>
-  table {
-    font-size: 1rem;
+  .cont-value {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .cont-value .cont-progress {
     width: 100%;
-    border-spacing: 5px;
-    font-size: 15px;
-  }
-
-  table thead {
-    font-size: 1rem;
-    text-align: center;
-  }
-
-  table .first-column {
-    padding-right: 5px;
-    width: 7rem;
-  }
-
-  table .nivel-column {
+    display: grid;
+    justify-content: center;
     align-items: center;
-    width: 1rem;
-    padding: 0.5rem 0;
+    column-gap: 1rem;
+    grid-template-columns: 4fr 1fr;
   }
 
-  table .nivel-column > .nivel-circulo {
-    width: 1.2rem;
-    height: 1.2rem;
-    border-radius: 100%;
-    border: 2px solid currentColor;
-    margin: 0 auto;
-    box-sizing: border-box;
+  .cont-value .cont-progress .progress {
+    grid-column: 1;
+    background: gray;
+    justify-content: flex-start;
+    border-radius: 15px;
+    align-items: center;
+    position: relative;
+    padding: 0 5px;
+    display: flex;
+    height: 20px;
+    width: 100%;
+    margin: 8px 0 10px 0;
   }
 
-  table .nivel-column .nivel-circulo.activo {
-    background-color: currentColor;
+  .progress-value {
+    border-radius: 30px;
+    background: #fff;
+    height: 10px;
+    width: 0;
   }
 
-  table .valor-column {
-    width: 5rem;
-    text-align: left;
-    padding-left: 1rem;
+  .cont-value .cont-progress .value {
+    grid-column: 2;
   }
 </style>

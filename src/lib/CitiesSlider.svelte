@@ -10,9 +10,11 @@
   let getCitiesMessurementPromise = Promise.resolve({ messures: [] });
 
   const TRANSLATE_NAMES = {
-    pressure: 'Presión',
-    humidity: 'Humedad',
-    temperature: 'Temperatura',
+    aire: 'Contaminacion atmosferica',
+    humedad: 'Humedad del aire',
+    temperatura: 'Temperatura',
+    sonido: 'Contaminacion auditiva',
+    uv: 'Radiacion UV'
   }
 
   const COLORS = {
@@ -79,8 +81,8 @@
               <ul>
                 {#each data as { type, unit, value, level }}
                   <li>
-                    <div class="icon" style={`color: ${COLORS[level]};`}></div>
-                    <p>{TRANSLATE_NAMES[type]} -- {value} {unit}</p>
+                    <div class="icon" style={`color: rgb(40, 112, 107);`}></div>
+                    <p>{TRANSLATE_NAMES[type]} - {value} {unit}</p>
                   </li>
                 {/each}
               </ul>

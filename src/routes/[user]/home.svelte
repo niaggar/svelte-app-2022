@@ -27,7 +27,7 @@
 
 <Section title="Bienvenida">
   <Card>
-    <h2>[Nombre app] te da la bienvenida</h2>
+    <h2><i style="color: #28706C;">EcoBox</i> te da la bienvenida</h2>
     <p>
       Para comenzar a utilizar la aplicacion te recomendamos que leas el siguiente tutorial:
     </p>
@@ -56,7 +56,7 @@
           <dd>
             <p>Dirigete a la seccion del mapa, aqui encontraras el mapa del mundo donde podras visualizar
               graficamente las condicioens medioambientales de la zona sercana a donde estas.</p>
-            <p>Los datos que podras ver son los tomados por todos los usuarios de [Nombre app] que esten 
+            <p>Los datos que podras ver son los tomados por todos los usuarios de <i style="color: #28706C;">EcoBox</i> que esten 
               mas actualizados y puedan ser de tu interes.</p>
           </dd>
         </dl>
@@ -64,9 +64,9 @@
         <dl>
           <dt><h3>Deseas conocer mas sobre temas medioambientales?</h3></dt>
           <dd>
-            <p>Te invitamos a que revises las pequenas publicaciones que se encuentran en las seccion de noticias,
+            <p>Te invitamos a que revises las cortas publicaciones que se encuentran en las seccion de noticias,
               aqui podras encontrar informacion sobre temas como la contaminacion, el agua, el clima, etc.</p>
-            <p>Pero si realmente te apasiona el tema, te animamos a que revises articulos cientificos que traten el tema con mayor profundidad.</p>
+            <p>Pero si realmente te apasiona el tema, te animamos a que investigues articulos cientificos que traten el tema con mayor profundidad.</p>
           </dd>
         </dl>
 
@@ -120,7 +120,7 @@
 </Section>
 
 
-<Section title="Noticias">
+<!-- <Section title="Noticias">
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
@@ -134,7 +134,7 @@
       <p>Error al cargar la ultima medición</p>
     {/await}
   </Card>
-</Section>
+</Section> -->
 
 
 <style>

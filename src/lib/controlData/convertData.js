@@ -4,21 +4,33 @@ import { getAuth } from 'firebase/auth';
 
 const DATA_MODEL = [
   {
-    type: 'temperature',
+    type: 'temperatura',
     value: 0,
     unit: 'C',
     level: 'none',
   },
   {
-    type: 'humidity',
+    type: 'humedad',
     value: 0,
     unit: '%',
     level: 'none',
   },
   {
-    type: 'pressure',
+    type: 'aire',
     value: 0,
-    unit: 'hPa',
+    unit: 'volt',
+    level: 'none',
+  },
+  {
+    type: 'sonido',
+    value: 0,
+    unit: 'volt',
+    level: 'none',
+  },
+  {
+    type: 'uv',
+    value: 0,
+    unit: 'UV (mW/cm^2)',
     level: 'none',
   },
 ];
@@ -46,6 +58,7 @@ export function averageData(dataToAverage) {
 
 export function convertRawData(raw) {
   return new Promise((res, rej) => {
+    console.log(raw)
     try {
       let model = JSON.parse(JSON.stringify(DATA_MODEL));
 
@@ -60,8 +73,14 @@ export function convertRawData(raw) {
           case 'h':
             model[1].value = value;
             break;
-          case 'p':
+          case 'a':
             model[2].value = value;
+            break;
+          case 's':
+            model[3].value = value;
+            break;
+          case 'u':
+            model[4].value = value;
             break;
         }
       });
@@ -84,7 +103,7 @@ export function createNewMeassure({ data, city, country }) {
         const hash = geohashForLocation([lat, long]);
         const user = getAuth().currentUser;
 
-        let finalData = {
+        let finalMessure = {
           city: city,
           country: country,
           user: user.displayName,
@@ -97,7 +116,7 @@ export function createNewMeassure({ data, city, country }) {
           data: data,
         };
 
-        res({ ...finalData });
+        res({ ...finalMessure });
       });
 
     } catch (err) { rej({ err }); }

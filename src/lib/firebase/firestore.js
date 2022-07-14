@@ -9,6 +9,7 @@ import {
   getDocs,
   getDoc,
   getFirestore,
+  setDoc,
   updateDoc,
   doc
 } from 'firebase/firestore';
@@ -61,7 +62,13 @@ export function saveUserData({ uid, city, data }) {
         country: data.country,
         update: data.createdAt
       }
-    });
+    }).catch(async () => await setDoc(userDocRef, {
+      [city]: {
+        cityName: city,
+        country: data.country,
+        update: data.createdAt
+      }
+    }));
 
     res({ success: true, err: null });
   });
