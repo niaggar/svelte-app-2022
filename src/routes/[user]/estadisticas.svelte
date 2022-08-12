@@ -22,7 +22,13 @@
   const handleHistoryClick = () => {
     let user = getAuth().currentUser;
     getHistoryMeasurementsPromise = new Promise(async (res, rej) => {
-      let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+      // let { ip } = await fetch('https://api.ipify.org?format=json').then(res => res.json());
+      // let { city } = await fetch(`ipinfo.io/${ip}?token=${variables.API_IPINFO}`).then((res) => res.json());
+
+      let city = 'Cali'
+
+
+
       let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch(
         (err) => rej({ err })
       );
@@ -57,8 +63,9 @@
     } else if (receivedString == 'end') {
       getLastMeasurementPromise = new Promise(async (res, rej) => {
         let userUid = getAuth().currentUser.uid;
-        let { city, country } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json()).catch((err) => rej({ err }));
 
+        let city = 'Cali'
+        let country = 'CO'
         let values = await convertRawData(newRawData);
         let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
 
@@ -78,7 +85,9 @@
   onMount(async () => {
     let user = getAuth().currentUser;
 
-    let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+    let city = 'Cali'
+        let country = 'CO'
+    
     getLastMeasurementPromise = getUserData({ uid: user.uid, city: city });
     getCitiesPromise = getUserCities({ uid: user.uid });
   });

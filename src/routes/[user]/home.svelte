@@ -19,7 +19,12 @@
     let user =  getAuth().currentUser;
 
     userRouteToDoNewMeasurement = `/${user.displayName.replace(/\s+/g, '').toLowerCase()}/estadisticas`;
-    let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+    
+    // let { ip } = await fetch('https://api.ipify.org?format=json').then(res => res.json());
+    // let { city } = await fetch(`https://ipinfo.io/${ip}?token=${variables.API_IPINFO}`).then((res) => res.json());
+
+    let city = 'Cali'
+    
     getLastMeasurementPromise = getUserData({ uid: user.uid, city });
   });
 </script>
