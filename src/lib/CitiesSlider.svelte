@@ -1,5 +1,6 @@
 <script>
   import { getUserData } from '$lib/firebase/firestore.js';
+  import { EXTEND_NAMES } from '$lib/controlData/utilDataTypes.js';
   import { getAuth } from 'firebase/auth';
 
   export let cityName;
@@ -8,20 +9,6 @@
 
   let isActive = false;
   let getCitiesMessurementPromise = Promise.resolve({ messures: [] });
-
-  const TRANSLATE_NAMES = {
-    aire: 'Contaminacion atmosferica',
-    humedad: 'Humedad del aire',
-    temperatura: 'Temperatura',
-    sonido: 'Contaminacion auditiva',
-    uv: 'Radiacion UV'
-  }
-
-  const COLORS = {
-    low: '#28706C',
-    normal: '#F1C24A',
-    high: '#F3643F',
-  }
 
   const handleClick = () => {
     isActive = !isActive;
@@ -82,7 +69,7 @@
                 {#each data as { type, unit, value, level }}
                   <li>
                     <div class="icon" style={`color: rgb(40, 112, 107);`}></div>
-                    <p>{TRANSLATE_NAMES[type]} - {value} {unit}</p>
+                    <p>{EXTEND_NAMES[type]} - {value} {unit}</p>
                   </li>
                 {/each}
               </ul>

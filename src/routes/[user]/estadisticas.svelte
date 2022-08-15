@@ -5,6 +5,7 @@
   import ButtonAction from '$lib/ButtonAction.svelte';
   import CitiesSlider from '$lib/CitiesSlider.svelte';
   import { getUserData, saveUserData, getUserCities, saveGlobalData } from '$lib/firebase/firestore.js';
+  import { getUserCity } from '$lib/firebase/services';
   import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/convertData.js';
   import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController.js';
   import { variables } from '$lib/variables';
@@ -16,25 +17,17 @@
   let getHistoryMeasurementsPromise = Promise.resolve({ data: [] });
   let getCitiesPromise = Promise.resolve({ data: [] });
   let newRawData = [];
-
-
+  
+  
   // Controla la actualizacion del historico de mediciones
   const handleHistoryClick = () => {
     let user = getAuth().currentUser;
+
     getHistoryMeasurementsPromise = new Promise(async (res, rej) => {
-      // let { ip } = await fetch('https://api.ipify.org?format=json').then(res => res.json());
-      // let { city } = await fetch(`ipinfo.io/${ip}?token=${variables.API_IPINFO}`).then((res) => res.json());
-
-      let city = 'Cali'
-
-
-
-      let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch(
-        (err) => rej({ err })
-      );
+      let { city, country } = await getUserCity();
+      let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch((err) => rej({ err }));
 
       let values = r.data.map((d) => d.data);
-
       res({ data: averageData(values) });
     });
   };
@@ -64,13 +57,11 @@
       getLastMeasurementPromise = new Promise(async (res, rej) => {
         let userUid = getAuth().currentUser.uid;
 
-        let city = 'Cali'
-        let country = 'CO'
+        let { city, country } = await getUserCity();
         let values = await convertRawData(newRawData);
         let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
 
         await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch((err) => rej({ err }));
-        console.log("OKAY OKAY")
         await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
         res({ data: [ newMeasure ] });
@@ -85,9 +76,7 @@
   onMount(async () => {
     let user = getAuth().currentUser;
 
-    let city = 'Cali'
-        let country = 'CO'
-    
+    let { city, country } = await getUserCity();
     getLastMeasurementPromise = getUserData({ uid: user.uid, city: city });
     getCitiesPromise = getUserCities({ uid: user.uid });
   });

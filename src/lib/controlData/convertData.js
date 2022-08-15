@@ -37,6 +37,7 @@ const DATA_MODEL = [
 
 
 export function averageData(dataToAverage) {
+  if (dataToAverage.length === 0) return [];
   let model = JSON.parse(JSON.stringify(DATA_MODEL));
 
   dataToAverage.forEach((d) => {
@@ -50,7 +51,6 @@ export function averageData(dataToAverage) {
   model[2].value = (model[2].value / dataToAverage.length).toFixed(1);
 
   model = setLevels(model);
-  
 
   return model;
 }

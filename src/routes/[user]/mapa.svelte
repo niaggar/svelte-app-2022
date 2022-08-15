@@ -1,72 +1,15 @@
 <script>
   import { onMount } from 'svelte';
   import { getDataUsingGeoHash } from '$lib/firebase/firestore.js';
+  import { getColor, EXTEND_NAMES, CIRCLE_COLORS } from '$lib/controlData/utilDataTypes.js';
+  import { variables } from '$lib/variables';
   import * as L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
   import './mapLegends.css';
 
-
-  const getColor = (type, value) => {
-    const tempColor = (value) => {
-      if (value > 30) return '#F3643F'
-      if (value > 15) return '#F1C24A'
-      else return '#28706C'
-    }
-
-    const humeColor = (value) => {
-      if (value > 75) return '#F3643F'
-      if (value > 40) return '#F1C24A'
-      else return '#28706C'
-    }
-
-    const aireColor = (value) => {
-      if (value > 2.5) return '#F3643F'
-      if (value > 1.5) return '#F1C24A'
-      else return '#28706C'
-    }
-
-    const audiColor = (value) => {
-      if (value > 2.5) return '#F3643F'
-      if (value > 1.8) return '#F1C24A'
-      else return '#28706C'
-    }
-
-    const uvColor = (value) => {
-      if (value > 8) return '#F3643F'
-      if (value > 4) return '#F1C24A'
-      else return '#28706C'
-    }
-
-    switch (type) {
-      case 'temperatura':
-        return tempColor(value)
-      case 'humedad':
-        return humeColor(value)
-      case 'aire':
-        return aireColor(value)
-      case 'sonido':
-        return audiColor(value)
-      case 'uv':
-        return uvColor(value)
-    }
-
-  }
-
-
   let MAP;
   let MEASURES = [];
-  const CIRCLE_COLORS = {
-    low: '#28706C',
-    normal: '#F1C24A',
-    high: '#F3643F',
-  };
-  const TRANSLATE_NAMES = {
-    aire: 'Contaminacion atmosferica',
-    humedad: 'Humedad del aire',
-    temperatura: 'Temperatura',
-    sonido: 'Contaminacion auditiva',
-    uv: 'Radiacion UV'
-  }
+  
 
   const createMap = () => {
     return new Promise((res, rej) => {
@@ -78,9 +21,11 @@
           MAP = L.map('map');
           MAP.setView([latOr, longOr], 17);
 
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+          L.tileLayer('https://{s}-tiles.locationiq.com/v3/light/r/{z}/{x}/{y}.png?key={accessToken}', {
+            attribution: '<a href="https://locationiq.com/?ref=maps" target="_blank">© LocationIQ</a> <a href=\"https://openstreetmap.org/about/\" target=\"_blank\">© OpenStreetMap</a>',
+            accessToken: variables.API_LOCATIONIQ,
+            maxZoom: 18,
+            id: 'streets',
           }).addTo(MAP);
 
           let marker = L.marker([latOr, longOr]).addTo(MAP);
@@ -122,7 +67,7 @@
         }).bindPopup(`
           <div class="map-legend">
             <div class="map-legend-title">
-              <h3>Medicion de ${TRANSLATE_NAMES[type]}</h3>
+              <h3>Medicion de ${EXTEND_NAMES[type]}</h3>
             </div>
             <div class="map-legend-content">
               <p>El valor de esta medicion es de ${value} ${unit}.</p>
