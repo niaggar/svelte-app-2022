@@ -24,7 +24,7 @@ const db = getFirestore();
 export function getUserData({ uid, city, count = 1 }) {
   return new Promise(async (res, rej) => {
     const userDataRef = collection(db, 'user-data', uid, city);
-
+    
     const q = query(userDataRef, orderBy('createdAt', 'desc'), limit(count));
     const docs = await getDocs(q).catch((err) => rej({ success: false, err, data: null }));
 

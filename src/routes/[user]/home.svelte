@@ -5,6 +5,7 @@
   import ButtonLink from '$lib/ButtonLink.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
   import { getUserData } from '$lib/firebase/firestore.js';
+  import { getUserCity } from '$lib/firebase/services';
   import { variables } from '$lib/variables';
   import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
@@ -19,7 +20,8 @@
     let user =  getAuth().currentUser;
 
     userRouteToDoNewMeasurement = `/${user.displayName.replace(/\s+/g, '').toLowerCase()}/estadisticas`;
-    let { city } = await fetch(`https://ipinfo.io/json?token=${variables.API_IPINFO}`).then((res) => res.json());
+    
+    let { city, country } = await getUserCity();
     getLastMeasurementPromise = getUserData({ uid: user.uid, city });
   });
 </script>
