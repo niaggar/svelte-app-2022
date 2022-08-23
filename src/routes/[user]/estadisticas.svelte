@@ -8,7 +8,6 @@
   import { getUserCity } from '$lib/firebase/services';
   import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/convertData.js';
   import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController.js';
-  import { variables } from '$lib/variables';
   import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
   import '$lib/firebase/firebase.js';
