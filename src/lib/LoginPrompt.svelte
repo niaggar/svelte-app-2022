@@ -66,7 +66,7 @@
     left: 50%;
     min-width: 300vw;
     min-height: 300vw;
-    background-color: red;
+    background-color: var(--green-b);
     animation-name: rotate;
     animation-iteration-count: infinite;
     animation-timing-function: linear;
