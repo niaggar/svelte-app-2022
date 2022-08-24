@@ -8,6 +8,7 @@
   import { getUserCity } from '$lib/firebase/services';
   import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/convertData.js';
   import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController.js';
+  import { createRandomValues } from '$lib/controlData/createRandomData.js';
   import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
   import '$lib/firebase/firebase.js';
@@ -33,12 +34,25 @@
 
   // Controla el boton para tomar una nueva medida, enviando un mensaje al microbit
   const handleNewMeasureClick = async () => {
-    let state = await connectToMicrobit(handleMessageFromMicrobit);
+    getLastMeasurementPromise = new Promise(async (res, rej) => {
+      let userUid = getAuth().currentUser.uid;
+
+      let { city, country } = await getUserCity();
+      let values = createRandomValues();
+      let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
+
+      await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch((err) => rej({ err }));
+      await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
+
+      res({ data: [ newMeasure ] });
+    });
     
-    if (state)
-      sendMessageToMicrobit('read\n');
-    else
-      alert('No se pudo conectar con el microbit');
+    // let state = await connectToMicrobit(handleMessageFromMicrobit);
+    
+    // if (state)
+    //   sendMessageToMicrobit('read\n');
+    // else
+    //   alert('No se pudo conectar con el microbit');
   };
 
   // Controlador de los datos enviados por la microbit

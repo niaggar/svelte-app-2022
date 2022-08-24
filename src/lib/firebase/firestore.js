@@ -126,7 +126,7 @@ export function getDataUsingGeoHash({ count = 1 }) {
             }
           }
 
-          otherDocs.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate())
+          otherDocs.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
 
           for (const doc of otherDocs) {
             const { geo: { lat: latDoc, lng: lngDoc } } = doc;
@@ -136,7 +136,7 @@ export function getDataUsingGeoHash({ count = 1 }) {
               const distanceWithOtherDocs = distanceBetween([latDoc, lngDoc], lastPositionDoc);
               const distanceInMWithOtherDocs = distanceWithOtherDocs * 1000;
 
-              isUniqueToOtherDocs = distanceInMWithOtherDocs > 20;
+              isUniqueToOtherDocs = distanceInMWithOtherDocs > 30;
             }
             
             const distanceInKm = distanceBetween([latDoc, lngDoc], center);
