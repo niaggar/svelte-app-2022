@@ -2,7 +2,7 @@ import { getAuth, updateProfile, signInWithEmailAndPassword, createUserWithEmail
 import { variables } from '../variables.js';
 import './firebase.js';
 
-import { browser } from '$app/env';
+import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 
 

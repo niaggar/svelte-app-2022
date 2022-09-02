@@ -5,7 +5,7 @@
   import { variables } from '$lib/variables';
   import * as L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
-  import './mapLegends.css';
+  import '../mapLegends.css';
 
   let MAP;
   let MEASURES = [];

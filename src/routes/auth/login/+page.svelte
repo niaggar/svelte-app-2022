@@ -4,7 +4,7 @@
   import { getAuth, onAuthStateChanged  } from 'firebase/auth';
   import { onMount } from 'svelte';
 	import '$lib/firebase/firebase.js';
-	import '../../app.css';
+	import '../../../app.css';
 
   let email = '';
   let password = '';
