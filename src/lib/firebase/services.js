@@ -1,9 +1,8 @@
 import { getAuth, updateProfile, signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { variables } from '../variables.js';
-import './firebase.js';
+import { browser } from '$app/environment';
+import './config.js';
 
-import { browser } from '$app/env';
-import { writable } from 'svelte/store';
 
 
 const firebaseAuth = getAuth();

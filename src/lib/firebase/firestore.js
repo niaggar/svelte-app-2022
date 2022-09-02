@@ -14,7 +14,7 @@ import {
   doc
 } from 'firebase/firestore';
 import { geohashQueryBounds, distanceBetween } from 'geofire-common';
-import './firebase.js';
+import './config.js';
 
 
 

@@ -10,8 +10,8 @@
   </div>
 
   <div>
-    <ButtonLink visibleText='Iniciar sesion' route='auth/login' type='yellow'/>
-    <ButtonLink visibleText='Crear nueva cuenta' route='auth/singin' type='green'/>
+    <ButtonLink visibleText='Iniciar sesion' route='login' type='yellow'/>
+    <ButtonLink visibleText='Crear nueva cuenta' route='singin' type='green'/>
   </div>
 </div>
 

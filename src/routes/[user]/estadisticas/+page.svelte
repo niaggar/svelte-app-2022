@@ -1,31 +1,44 @@
 <script>
+  import {
+    getUserData,
+    saveUserData,
+    getUserCities,
+    saveGlobalData,
+  } from '$lib/firebase/firestore.js';
+  import {
+    averageData,
+    convertRawData,
+    createNewMeassure,
+  } from '$lib/controlData/convertData.js';
+  import {
+    connectToMicrobit,
+    sendMessageToMicrobit,
+  } from '$lib/controlData/microbitController.js';
+  import { createRandomValues } from '$lib/controlData/createRandomData.js';
+  import { getUserCity } from '$lib/firebase/services';
+  import { getAuth } from 'firebase/auth';
+  import { onMount } from 'svelte';
+
   import Card from '$lib/Card.svelte';
   import Section from '$lib/Section.svelte';
   import DataTable from '$lib/DataTable.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
   import CitiesSlider from '$lib/CitiesSlider.svelte';
-  import { getUserData, saveUserData, getUserCities, saveGlobalData } from '$lib/firebase/firestore.js';
-  import { getUserCity } from '$lib/firebase/services';
-  import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/convertData.js';
-  import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController.js';
-  import { createRandomValues } from '$lib/controlData/createRandomData.js';
-  import { getAuth } from 'firebase/auth';
-  import { onMount } from 'svelte';
-  import '$lib/firebase/firebase.js';
 
   let getLastMeasurementPromise = Promise.resolve({ data: [] });
   let getHistoryMeasurementsPromise = Promise.resolve({ data: [] });
   let getCitiesPromise = Promise.resolve({ data: [] });
   let newRawData = [];
-  
-  
+
   // Controla la actualizacion del historico de mediciones
   const handleHistoryClick = () => {
     let user = getAuth().currentUser;
 
     getHistoryMeasurementsPromise = new Promise(async (res, rej) => {
       let { city, country } = await getUserCity();
-      let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch((err) => rej({ err }));
+      let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch(
+        (err) => rej({ err })
+      );
 
       let values = r.data.map((d) => d.data);
       res({ data: averageData(values) });
@@ -39,16 +52,22 @@
 
       let { city, country } = await getUserCity();
       let values = createRandomValues();
-      let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
+      let newMeasure = await createNewMeassure({
+        city,
+        country,
+        data: values,
+      }).catch((err) => rej({ err }));
 
-      await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch((err) => rej({ err }));
+      await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch(
+        (err) => rej({ err })
+      );
       await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
-      res({ data: [ newMeasure ] });
+      res({ data: [newMeasure] });
     });
-    
+
     // let state = await connectToMicrobit(handleMessageFromMicrobit);
-    
+
     // if (state)
     //   sendMessageToMicrobit('read\n');
     // else
@@ -62,7 +81,9 @@
       receivedData[i] = event.target.value.getUint8(i);
     }
 
-    let receivedString = String.fromCharCode.apply(null, receivedData).replace(/(\r\n|\n|\r)/gm, "");
+    let receivedString = String.fromCharCode
+      .apply(null, receivedData)
+      .replace(/(\r\n|\n|\r)/gm, '');
 
     if (receivedString == 'init') {
       newRawData = [];
@@ -72,19 +93,25 @@
 
         let { city, country } = await getUserCity();
         let values = await convertRawData(newRawData);
-        let newMeasure = await createNewMeassure({ city, country, data: values }).catch((err) => rej({ err }));
+        let newMeasure = await createNewMeassure({
+          city,
+          country,
+          data: values,
+        }).catch((err) => rej({ err }));
 
-        await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch((err) => rej({ err }));
+        await saveUserData({
+          uid: userUid,
+          city: city,
+          data: newMeasure,
+        }).catch((err) => rej({ err }));
         await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
-        res({ data: [ newMeasure ] });
+        res({ data: [newMeasure] });
       });
-
     } else {
       newRawData.push(receivedString);
     }
   };
-
 
   onMount(async () => {
     let user = getAuth().currentUser;
@@ -118,7 +145,7 @@
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
     {:then { data }}
-      {#if data.length > 0 }
+      {#if data.length > 0}
         <p>
           Ultima medicion realizada el {data[0].createdAt
             .toDate()
@@ -159,7 +186,6 @@
   />
 </Section>
 
-
 <Section title="Ciudades">
   <Card>
     <p>A continuacion se listan las ciudades en donde has tomado mediciones.</p>
@@ -168,7 +194,7 @@
       <p>Cargando...</p>
     {:then { data }}
       {#each data as { cityName, country, update }}
-        <CitiesSlider {cityName} {country} {update}/>
+        <CitiesSlider {cityName} {country} {update} />
       {/each}
     {:catch { err }}
       <p>Error al cargar las ciudades</p>

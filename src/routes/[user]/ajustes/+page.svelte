@@ -4,22 +4,21 @@
 
   const logout = () => {
     const auth = getAuth();
-    
-    signOut(auth);
+
+    signOut(auth)
+      .then(() => console.log('logout'))
+      .catch((error) => console.log(error));
   };
 </script>
 
-
-<div class='container'>
+<div class="container">
   <h1>Configuracion</h1>
   <!-- <ButtonAction visibleText='Cambiar nombre de usuario' type='gray' action={() => {}}/>
   <ButtonAction visibleText='Privacidad de las mediciones' type='gray' action={() => {}}/>
   <ButtonAction visibleText='Cerrar sesion' type='gray' action={() => {}}/> -->
 
-  <ButtonAction visibleText='Cerrar sesion' type='orange' action={logout}/>
+  <ButtonAction visibleText="Cerrar sesion" type="orange" action={logout} />
 </div>
-
-
 
 <style>
   .container {

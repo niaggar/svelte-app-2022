@@ -1,15 +1,18 @@
 <script>
   import { onMount } from 'svelte';
   import { getDataUsingGeoHash } from '$lib/firebase/firestore.js';
-  import { getColor, EXTEND_NAMES, CIRCLE_COLORS } from '$lib/controlData/utilDataTypes.js';
+  import {
+    getColor,
+    EXTEND_NAMES,
+    CIRCLE_COLORS,
+  } from '$lib/controlData/utilDataTypes.js';
   import { variables } from '$lib/variables';
   import * as L from 'leaflet';
   import 'leaflet/dist/leaflet.css';
-  import './mapLegends.css';
+  import '../mapLegends.css';
 
   let MAP;
   let MEASURES = [];
-  
 
   const createMap = () => {
     return new Promise((res, rej) => {
@@ -21,12 +24,16 @@
           MAP = L.map('map');
           MAP.setView([latOr, longOr], 17);
 
-          L.tileLayer('https://{s}-tiles.locationiq.com/v3/light/r/{z}/{x}/{y}.png?key={accessToken}', {
-            attribution: '<a href="https://locationiq.com/?ref=maps" target="_blank">© LocationIQ</a> <a href=\"https://openstreetmap.org/about/\" target=\"_blank\">© OpenStreetMap</a>',
-            accessToken: variables.API_LOCATIONIQ,
-            maxZoom: 18,
-            id: 'streets',
-          }).addTo(MAP);
+          L.tileLayer(
+            'https://{s}-tiles.locationiq.com/v3/light/r/{z}/{x}/{y}.png?key={accessToken}',
+            {
+              attribution:
+                '<a href="https://locationiq.com/?ref=maps" target="_blank">© LocationIQ</a> <a href="https://openstreetmap.org/about/" target="_blank">© OpenStreetMap</a>',
+              accessToken: variables.API_LOCATIONIQ,
+              maxZoom: 18,
+              id: 'streets',
+            }
+          ).addTo(MAP);
 
           let marker = L.marker([latOr, longOr]).addTo(MAP);
           marker.bindPopup(`<b>Te encuentras aqui 😎</b>`).openPopup();
@@ -72,7 +79,9 @@
             <div class="map-legend-content">
               <p>El valor de esta medicion es de ${value} ${unit}.</p>
               <hr size="1px" color="#777" />
-              <p class="map-legend-extra">Tomada el ${createdAt.toDate().toLocaleString()}.</p>
+              <p class="map-legend-extra">Tomada el ${createdAt
+                .toDate()
+                .toLocaleString()}.</p>
             </div>
           </div>
         `);
@@ -97,13 +106,15 @@
       });
     });
 
-    L.control.layers({
-      'Temperatura': L.layerGroup(temperatureLayerGroup),
-      'Humedad': L.layerGroup(humidityLayerGroup),
-      'Contaminacion atmosferica': L.layerGroup(aireLayerGroup),
-      'Contaminacion auditiva': L.layerGroup(sonidoLayerGroup),
-      'Radiacion UV': L.layerGroup(uvLayerGroup),
-    }).addTo(MAP);
+    L.control
+      .layers({
+        Temperatura: L.layerGroup(temperatureLayerGroup),
+        Humedad: L.layerGroup(humidityLayerGroup),
+        'Contaminacion atmosferica': L.layerGroup(aireLayerGroup),
+        'Contaminacion auditiva': L.layerGroup(sonidoLayerGroup),
+        'Radiacion UV': L.layerGroup(uvLayerGroup),
+      })
+      .addTo(MAP);
 
     addLegendsToMap();
   };
@@ -120,7 +131,7 @@
     };
 
     legend.addTo(MAP);
-    
+
     MAP.on('baselayerchange', ({ name }) => {
       MAP.removeControl(legend);
 
@@ -214,13 +225,13 @@
               </div>              
             `;
             break;
-          }
+        }
         return div;
       };
 
       legend.addTo(MAP);
     });
-  }
+  };
 </script>
 
 <div id="map" />
