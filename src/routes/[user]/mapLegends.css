@@ -1,48 +1,48 @@
 .info {
-	padding: 1rem;
-	min-width: 250px;
-	font-size: 14px;
-	font-family: 'Noto Sans', sans-serif;
-	background: rgb(255, 255, 255);
-	box-shadow: 0 0 3px 0 #66666670;
-	border-radius: 0.5rem;
-	margin-left: 10px;
+  padding: 1rem;
+  min-width: 250px;
+  font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
+  background: rgb(255, 255, 255);
+  box-shadow: 0 0 3px 0 #66666670;
+  border-radius: 0.5rem;
+  margin-left: 10px;
 }
 
 .info h4 {
-	margin: 0 0 5px;
-	font-size: 16px;
-	color: #777;
+  margin: 0 0 5px;
+  font-size: 16px;
+  color: #777;
 }
 
 .legend {
-	line-height: 18px;
-	color: #555;
+  line-height: 18px;
+  color: #555;
 }
 
 .legend div {
-	display: flex;
-	justify-content: space-between;
-	margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2px;
 }
 
 .legend div div.icon {
-	width: 18px;
-	height: 18px;
-	margin-right: 8px;
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
 }
 
 .map-legend {
-	font-size: 14px;
-	font-family: 'Noto Sans', sans-serif;
+  font-size: 14px;
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .map-legend-content p {
-	margin: 4px 0;
+  margin: 4px 0;
 }
 
 .map-legend-extra {
-	margin-top: 10px;
-	color: #777;
-	font-size: 12px;
+  margin-top: 10px;
+  color: #777;
+  font-size: 12px;
 }

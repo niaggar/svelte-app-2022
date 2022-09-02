@@ -9,36 +9,36 @@
   import { variables } from '$lib/variables';
   import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
-  import '$lib/firebase/firebase.js';
-
 
   let getLastMeasurementPromise = Promise.resolve({ data: [] });
   let userRouteToDoNewMeasurement = '';
   let seeTutorial = false;
 
   onMount(async () => {
-    let user =  getAuth().currentUser;
+    let user = getAuth().currentUser;
 
-    userRouteToDoNewMeasurement = `/${user.displayName.replace(/\s+/g, '').toLowerCase()}/estadisticas`;
-    
+    userRouteToDoNewMeasurement = `/${user.displayName
+      .replace(/\s+/g, '')
+      .toLowerCase()}/estadisticas`;
+
     let { city, country } = await getUserCity();
     getLastMeasurementPromise = getUserData({ uid: user.uid, city });
   });
 </script>
 
-
 <Section title="Bienvenida">
   <Card>
     <h2><i style="color: #28706C;">EcoBox</i> te da la bienvenida</h2>
     <p>
-      Para comenzar a utilizar la aplicacion te recomendamos que leas el siguiente tutorial:
+      Para comenzar a utilizar la aplicacion te recomendamos que leas el
+      siguiente tutorial:
     </p>
 
-    <br/>
+    <br />
 
     {#if !seeTutorial}
       <ButtonAction
-        action={() => seeTutorial = true}
+        action={() => (seeTutorial = true)}
         visibleText="Ver tutorial"
         type="white"
       />
@@ -47,33 +47,50 @@
         <dl>
           <dt><h3>Como realizar el control de tu entorno?</h3></dt>
           <dd>
-            <p>Para realizar esto tendras que tener a la mano tu dispositivo, 
-              ahora dirigite a la seccion de mediciones desde donde podras conectar el dispositivo y 
-              automaticamente este recolectara los datos del entorno en donde te encuentras. </p>
+            <p>
+              Para realizar esto tendras que tener a la mano tu dispositivo,
+              ahora dirigite a la seccion de mediciones desde donde podras
+              conectar el dispositivo y automaticamente este recolectara los
+              datos del entorno en donde te encuentras.
+            </p>
           </dd>
         </dl>
 
         <dl>
           <dt><h3>Como ver el mapa con los datos?</h3></dt>
           <dd>
-            <p>Dirigete a la seccion del mapa, aqui encontraras el mapa del mundo donde podras visualizar
-              graficamente las condicioens medioambientales de la zona sercana a donde estas.</p>
-            <p>Los datos que podras ver son los tomados por todos los usuarios de <i style="color: #28706C;">EcoBox</i> que esten 
-              mas actualizados y puedan ser de tu interes.</p>
+            <p>
+              Dirigete a la seccion del mapa, aqui encontraras el mapa del mundo
+              donde podras visualizar graficamente las condicioens
+              medioambientales de la zona sercana a donde estas.
+            </p>
+            <p>
+              Los datos que podras ver son los tomados por todos los usuarios de <i
+                style="color: #28706C;">EcoBox</i
+              > que esten mas actualizados y puedan ser de tu interes.
+            </p>
           </dd>
         </dl>
 
         <dl>
           <dt><h3>Deseas conocer mas sobre temas medioambientales?</h3></dt>
           <dd>
-            <p>Te invitamos a que revises las cortas publicaciones que se encuentran en las seccion de noticias,
-              aqui podras encontrar informacion sobre temas como la contaminacion, el agua, el clima, etc.</p>
-            <p>Pero si realmente te apasiona el tema, te animamos a que investigues articulos cientificos que traten el tema con mayor profundidad.</p>
+            <p>
+              Te invitamos a que revises las cortas publicaciones que se
+              encuentran en las seccion de noticias, aqui podras encontrar
+              informacion sobre temas como la contaminacion, el agua, el clima,
+              etc.
+            </p>
+            <p>
+              Pero si realmente te apasiona el tema, te animamos a que
+              investigues articulos cientificos que traten el tema con mayor
+              profundidad.
+            </p>
           </dd>
         </dl>
 
         <ButtonAction
-          action={() => seeTutorial = false}
+          action={() => (seeTutorial = false)}
           visibleText="Ocultar tutorial"
           type="white"
         />
@@ -81,7 +98,6 @@
     {/if}
   </Card>
 </Section>
-
 
 <Section title="Ultima medición">
   <Card>
@@ -102,12 +118,17 @@
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
     {:then { data }}
-      {#if data.length > 0 }
+      {#if data.length > 0}
         <p>
-          Ultima medicion realizada el {data[0].createdAt.toDate().toLocaleString()}
+          Ultima medicion realizada el {data[0].createdAt
+            .toDate()
+            .toLocaleString()}
         </p>
       {:else}
-        <p>Tadavia no tienes mediciones, dirigete a la pagina de mediciones y realiza tu primera!</p>
+        <p>
+          Tadavia no tienes mediciones, dirigete a la pagina de mediciones y
+          realiza tu primera!
+        </p>
       {/if}
     {:catch { err }}
       <p>Error al cargar la ultima medición</p>
@@ -120,7 +141,6 @@
     />
   </Card>
 </Section>
-
 
 <!-- <Section title="Noticias">
   <Card>
@@ -137,8 +157,6 @@
     {/await}
   </Card>
 </Section> -->
-
-
 <style>
   dt {
     font-size: 1rem;

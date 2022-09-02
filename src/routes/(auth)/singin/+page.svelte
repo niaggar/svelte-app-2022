@@ -1,39 +1,31 @@
 <script>
   import { goto } from '$app/navigation';
-  import { loginWithEmail } from '$lib/firebase/services';
-  import { getAuth, onAuthStateChanged  } from 'firebase/auth';
+  import { createUserWithEmail } from '$lib/firebase/services';
   import { onMount } from 'svelte';
-	import '$lib/firebase/firebase.js';
-	import '../../../app.css';
+  import authChanged from '../authVerification';
 
+  let name = '';
   let email = '';
   let password = '';
   let unsuscriptionAuthState = undefined;
-	
-  const startUserVerification = () => {
-    const auth = getAuth();
 
-    unsuscriptionAuthState = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        let name = user.displayName || '';
-        
-        if (name.length > 0) {
-          let userUrl = `/${name.replace(/\s+/g, '').toLowerCase()}/home`;
-          goto(userUrl);
-        }
-      }
-    });
-  }
-  
-  const handleSubmintLogin = async () => {
+  const startUserVerification = () => {
+    unsuscriptionAuthState = authChanged();
+  };
+
+  const handleSubmintSignin = async () => {
     unsuscriptionAuthState();
 
-    const userData = { email, password };
-    const { success, err, user } = await loginWithEmail(userData).catch(err => err) ;
+    const userData = { name, email, password };
+    const { success, user, err } = await createUserWithEmail(userData).catch(
+      (err) => err
+    );
 
     if (success) {
-			let userUrl = `/${user.user.displayName.replace(/\s+/g, '').toLowerCase()}/`;
-      setTimeout(() => goto(userUrl), 500);
+      let userUrl = `/${user.user.displayName
+        .replace(/\s+/g, '')
+        .toLowerCase()}/`;
+      await goto(userUrl);
     } else {
       alert(err);
     }
@@ -42,14 +34,19 @@
   onMount(startUserVerification);
 </script>
 
-
 <svelte:head>
-	<title>Iniciar sesion</title>
+  <title>Crear nueva cuenta</title>
 </svelte:head>
 
 <div class="container">
   <div>
-    <form on:submit|preventDefault={handleSubmintLogin}>
+    <form on:submit|preventDefault={handleSubmintSignin}>
+      <input
+        required
+        bind:value={name}
+        placeholder="Nombre de usuario"
+        type="text"
+      />
       <input
         required
         bind:value={email}
@@ -62,12 +59,11 @@
         placeholder="Contraseña"
         type="password"
       />
-      <button type="submit">Iniciar sesion</button>
+      <button type="submit">Crear cuenta</button>
     </form>
   </div>
-  <a href="/auth/singin">Crear nueva cuenta</a>
+  <a href="/login">Iniciar sesion</a>
 </div>
-
 
 <style>
   * {
@@ -78,7 +74,7 @@
   .container {
     width: 100%;
     padding: 3.5em 1.5em;
-    margin-top: 50%;
+    margin-top: 35%;
   }
 
   form * {
