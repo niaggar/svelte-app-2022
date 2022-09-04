@@ -3,15 +3,21 @@
   "version": "1.0.1",
   "private": true,
   "scripts": {
-	  "dev": "vite dev",
-	  "build": "vite build",
-	  "preview": "vite preview"
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "devDependencies": {
-		"@sveltejs/adapter-auto": "next",
-		"@sveltejs/kit": "next",
-		"svelte": "^3.44.0",
-		"vite": "^3.1.0-beta.1"
+    "@sveltejs/adapter-auto": "next",
+    "@sveltejs/kit": "next",
+    "@types/leaflet": "^1.7.11",
+    "@types/web-bluetooth": "^0.0.15",
+    "svelte": "^3.44.0",
+    "svelte-check": "^2.7.1",
+    "svelte-preprocess": "^4.10.6",
+    "tslib": "^2.3.1",
+    "typescript": "^4.7.4",
+    "vite": "^3.1.0-beta.1"
   },
   "type": "module",
   "dependencies": {

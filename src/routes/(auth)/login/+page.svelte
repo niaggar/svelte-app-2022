@@ -1,36 +1,16 @@
-<script>
-  import { goto } from '$app/navigation';
+<script lang="ts">
   import { loginWithEmail } from '$lib/firebase/services';
-  import { onMount } from 'svelte';
-  import authChanged from '../authVerification';
 
   let email = '';
   let password = '';
-  let unsuscriptionAuthState = undefined;
-
-  const startUserVerification = () => {
-    unsuscriptionAuthState = authChanged();
-  };
 
   const handleSubmintLogin = async () => {
-    unsuscriptionAuthState();
+    const { success } = await loginWithEmail(email, password);
 
-    const userData = { email, password };
-    const { success, err, user } = await loginWithEmail(userData).catch(
-      (err) => err
-    );
-
-    if (success) {
-      let userUrl = `/${user.user.displayName
-        .replace(/\s+/g, '')
-        .toLowerCase()}/`;
-      await goto(userUrl);
-    } else {
-      alert(err);
+    if (!success) {
+      alert('Error al iniciar sesión');
     }
   };
-
-  onMount(startUserVerification);
 </script>
 
 <svelte:head>

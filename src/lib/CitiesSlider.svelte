@@ -1,35 +1,29 @@
-<script>
-  import { getUserData } from '$lib/firebase/firestore.js';
-  import { EXTEND_NAMES } from '$lib/controlData/utilDataTypes.js';
+<script lang="ts">
+  import { getUserData } from '$lib/firebase/firestore';
+  import { EXTEND_NAMES } from '$lib/controlData/utilDataTypes';
   import { getAuth } from 'firebase/auth';
+  import type { Timestamp } from 'firebase/firestore';
+  import type { MeassurePack } from './types/meassureType';
 
-  export let cityName;
-  export let update;
-  export let country;
+  export let cityName: string;
+  export let update: Timestamp;
+  export let country: string;
 
   let isActive = false;
-  let getCitiesMessurementPromise = Promise.resolve({ messures: [] });
+  let getCitiesMessurementPromise: Promise<{ success: boolean, data?: MeassurePack[] }> = Promise.resolve({ success: true, data: [] });
 
   const handleClick = () => {
     isActive = !isActive;
 
     if (isActive) {
       let user = getAuth().currentUser;
-      getCitiesMessurementPromise = new Promise(async (res, rej) => {
-        let { data } = await getUserData({
-          uid: user.uid,
-          city: cityName,
-          count: 10,
-        }).catch((err) => rej({ err }));
+      getCitiesMessurementPromise = getUserData(user?.uid ?? '', cityName, 10);
 
-        res({ messures: data });
-      })
     } else {
-      getCitiesMessurementPromise = Promise.resolve({ messures: [] });
+      getCitiesMessurementPromise = Promise.resolve({ success: true, data: [] });
     }
   };
 </script>
-
 
 <article>
   <div class={`title ${isActive ? 'active' : ''}`} on:click={handleClick}>
@@ -37,7 +31,7 @@
       <p>{cityName}, {country}</p>
       <p class="mini">{update.toDate().toLocaleString()}</p>
     </div>
-  
+
     <div class="icon">
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -59,33 +53,34 @@
     <div class="content">
       {#await getCitiesMessurementPromise}
         <p>Cargando...</p>
-      {:then { messures }}
-        {#if messures.length > 0}
-          
-          {#each messures as { data, createdAt }}
-            <div class="messure-cont">
-              <p>{createdAt.toDate().toLocaleString()}</p>
-              <ul>
-                {#each data as { type, unit, value, level }}
-                  <li>
-                    <div class="icon" style={`color: rgb(40, 112, 107);`}></div>
-                    <p>{EXTEND_NAMES[type]} - {value} {unit}</p>
-                  </li>
-                {/each}
-              </ul>
-            </div>
-          {/each}
+      
+      {:then { success, data }}
+        {#if success}
+          {#if data && data.length > 0}
 
-        {:else}
+            {#each data as { meassures, createdAt }}
+              <div class="messure-cont">
+                <p>{createdAt.toDate().toLocaleString()}</p>
+                <ul>
+                  {#each meassures as { name, unit, value }}
+                    <li>
+                      <div class="icon" style={`color: rgb(40, 112, 107);`} />
+                      <p>{EXTEND_NAMES[name]} - {value} {unit}</p>
+                    </li>
+                  {/each}
+                </ul>
+              </div>
+            {/each}
+          {:else}
           <p>Parece que no hay mediciones almacenadas en esta ciudad...</p>
+          {/if}
+        {:else}
+          <p>Ha ocurrido un error</p>
         {/if}
-      {:catch { err }}
-        <p>Error al cargar la ultima medición</p>
       {/await}
     </div>
   {/if}
 </article>
-
 
 <style>
   .messure-cont {
@@ -95,8 +90,8 @@
   }
 
   .messure-cont ul {
-    list-style: none;;
-    margin-left: 1rem;  
+    list-style: none;
+    margin-left: 1rem;
   }
 
   .messure-cont ul li {
@@ -117,7 +112,7 @@
     box-shadow: 0 0 3px 0 #66666670;
     border-radius: 0.5rem;
   }
-  
+
   .content {
     padding: 0.8rem 1.2rem;
   }

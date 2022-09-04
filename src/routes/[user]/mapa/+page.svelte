@@ -1,92 +1,70 @@
-<script>
+<script lang="ts">
+  import type { MeassurePack } from '$lib/types/meassureType';
+  import * as leaf from 'leaflet';
   import { onMount } from 'svelte';
-  import { getDataUsingGeoHash } from '$lib/firebase/firestore.js';
-  import {
-    getColor,
-    EXTEND_NAMES,
-    CIRCLE_COLORS,
-  } from '$lib/controlData/utilDataTypes.js';
+  import { getDataUsingGeoHash } from '$lib/firebase/firestore';
   import { variables } from '$lib/variables';
-  import * as L from 'leaflet';
+  import { createCircle, createLevelLayer } from './createLeafletElements';
   import 'leaflet/dist/leaflet.css';
-  import '../mapLegends.css';
+  import './mapLegends.css';
 
-  let MAP;
-  let MEASURES = [];
+  let MAP: leaf.Map;
+  let MEASURES: MeassurePack[] = [];
 
-  const createMap = () => {
-    return new Promise((res, rej) => {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          let latOr = position.coords.latitude;
-          let longOr = position.coords.longitude;
 
-          MAP = L.map('map');
-          MAP.setView([latOr, longOr], 17);
+  const createMap = (latOr: number, longOr: number) => {
+    let newMap = leaf.map('map');
+    newMap.setView([latOr, longOr], 17);
 
-          L.tileLayer(
-            'https://{s}-tiles.locationiq.com/v3/light/r/{z}/{x}/{y}.png?key={accessToken}',
-            {
-              attribution:
-                '<a href="https://locationiq.com/?ref=maps" target="_blank">© LocationIQ</a> <a href="https://openstreetmap.org/about/" target="_blank">© OpenStreetMap</a>',
-              accessToken: variables.API_LOCATIONIQ,
-              maxZoom: 18,
-              id: 'streets',
-            }
-          ).addTo(MAP);
+    leaf.tileLayer(
+      'https://{s}-tiles.locationiq.com/v3/light/r/{z}/{x}/{y}.png?key={accessToken}',
+      {
+        attribution: '<a href="https://locationiq.com/?ref=maps" target="_blank">© LocationIQ</a> <a href="https://openstreetmap.org/about/" target="_blank">© OpenStreetMap</a>',
+        accessToken: variables.API_LOCATIONIQ,
+        maxZoom: 18,
+        id: 'streets',
+      }
+    ).addTo(newMap);
 
-          let marker = L.marker([latOr, longOr]).addTo(MAP);
-          marker.bindPopup(`<b>Te encuentras aqui 😎</b>`).openPopup();
+    return newMap;
+  };
 
-          res();
-        },
-        (err) => rej(err)
-      );
-    });
+  const centerMap = (latOr: number, longOr: number) => {
+    MAP.setView([latOr, longOr], 17);
+
+    let marker = leaf.marker([latOr, longOr]).addTo(MAP);
+    marker.bindPopup(`<b>Te encuentras aqui 😎</b>`).openPopup();
   };
 
   onMount(async () => {
-    const promises = [getDataUsingGeoHash({ count: 30 }), createMap()];
-    const [{ success, data }] = await Promise.all(promises);
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      let latOr = position.coords.latitude;
+      let longOr = position.coords.longitude;
 
-    if (success) {
-      MEASURES = data;
-      render();
-    }
+      let newMap = createMap(latOr, longOr);
+      MAP = newMap;
+
+      centerMap(latOr, longOr);
+
+      let firebaseResponse = await getDataUsingGeoHash(latOr, longOr, 20);
+      MEASURES = firebaseResponse.data ?? [];
+
+      rederLayersOnMap();
+    });
   });
 
-  const render = () => {
-    let temperatureLayerGroup = [];
-    let humidityLayerGroup = [];
-    let aireLayerGroup = [];
-    let sonidoLayerGroup = [];
-    let uvLayerGroup = [];
+  const rederLayersOnMap = () => {
+    let temperatureLayerGroup: leaf.Circle[] = [];
+    let humidityLayerGroup: leaf.Circle[] = [];
+    let aireLayerGroup: leaf.Circle[] = [];
+    let sonidoLayerGroup: leaf.Circle[] = [];
+    let uvLayerGroup: leaf.Circle[] = [];
 
-    MEASURES.forEach(({ data, geo, createdAt }) => {
-      const position = [geo.lat, geo.lng];
+    MEASURES.forEach(({ meassures, geo, createdAt }) => {
+      meassures.forEach((meassure) => {
+        let circle = createCircle(meassure, geo.lat, geo.lng, createdAt);
 
-      data.forEach(({ level, type, unit, value }) => {
-        let circle = L.circle(position, {
-          color: getColor(type, value),
-          fillColor: getColor(type, value),
-          fillOpacity: 0.5,
-          radius: 100,
-        }).bindPopup(`
-          <div class="map-legend">
-            <div class="map-legend-title">
-              <h3>Medicion de ${EXTEND_NAMES[type]}</h3>
-            </div>
-            <div class="map-legend-content">
-              <p>El valor de esta medicion es de ${value} ${unit}.</p>
-              <hr size="1px" color="#777" />
-              <p class="map-legend-extra">Tomada el ${createdAt
-                .toDate()
-                .toLocaleString()}.</p>
-            </div>
-          </div>
-        `);
-
-        switch (type) {
+        switch (meassure.name) {
           case 'temperatura':
             temperatureLayerGroup.push(circle);
             break;
@@ -106,23 +84,22 @@
       });
     });
 
-    L.control
-      .layers({
-        Temperatura: L.layerGroup(temperatureLayerGroup),
-        Humedad: L.layerGroup(humidityLayerGroup),
-        'Contaminacion atmosferica': L.layerGroup(aireLayerGroup),
-        'Contaminacion auditiva': L.layerGroup(sonidoLayerGroup),
-        'Radiacion UV': L.layerGroup(uvLayerGroup),
-      })
-      .addTo(MAP);
+    leaf.control.layers({
+      'Temperatura': leaf.layerGroup(temperatureLayerGroup),
+      'Humedad': leaf.layerGroup(humidityLayerGroup),
+      'Contaminacion atmosferica': leaf.layerGroup(aireLayerGroup),
+      'Contaminacion auditiva': leaf.layerGroup(sonidoLayerGroup),
+      'Radiacion UV': leaf.layerGroup(uvLayerGroup),
+    }).addTo(MAP);
 
     addLegendsToMap();
   };
 
   const addLegendsToMap = () => {
-    let legend = L.control({ position: 'bottomright' });
+    let legend = new leaf.Control({ position: 'bottomright' });
+
     legend.onAdd = () => {
-      let div = L.DomUtil.create('div', 'info legend');
+      let div = leaf.DomUtil.create('div', 'info legend');
       div.innerHTML += `
         <h4>Elige que valores deseas visualizar!</h4>
         <p>Esto desde el boton de capas que se encuentra en la parte superior derecha del mapa. ☝</p>
@@ -135,97 +112,28 @@
     MAP.on('baselayerchange', ({ name }) => {
       MAP.removeControl(legend);
 
-      legend = L.control({ position: 'bottomright' });
+      legend = new leaf.Control({ position: 'bottomright' });
       legend.onAdd = () => {
-        let div = L.DomUtil.create('div', 'info legend');
+        let div = leaf.DomUtil.create('div', 'info legend');
 
         switch (name) {
           case 'Temperatura':
-            div.innerHTML += `
-              <h4>Niveles de temperatura</h4>
-              <div>
-                <span>Baja (-20 - 15 C)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
-              </div>
-              <div>
-                <span>Normal (15 - 30 C)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
-              </div>
-              <div>
-                <span>Alta (> 30 C)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
-              </div>
-            `;
+            div.innerHTML += `<h4>Niveles de temperatura</h4>${createLevelLayer('temperatura')}`;
             break;
           case 'Humedad':
-            div.innerHTML += `
-              <h4>Niveles de humedad</h4>
-              <div>
-                <span>Baja (0 - 50%)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
-              </div>
-              <div>
-                <span>Normal (50 - 70%)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
-              </div>
-              <div>
-                <span>Alta (> 70%)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
-              </div>
-            `;
+            div.innerHTML += `<h4>Niveles de humedad</h4>${createLevelLayer('humedad')}`;
             break;
           case 'Radiacion UV':
-            div.innerHTML += `
-              <h4>Niveles de Radiacion UV</h4>
-              <div>
-                <span>Baja (0 - 4 uv)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
-              </div>
-              <div>
-                <span>Normal (4 - 8 uv)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
-              </div>
-              <div>
-                <span>Alta (> 8 uv)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
-              </div>              
-            `;
+            div.innerHTML += `<h4>Niveles de Radiacion UV</h4>${createLevelLayer('uv')}`;
             break;
           case 'Contaminacion atmosferica':
-            div.innerHTML += `
-              <h4>Niveles de contaminacion atmosferica</h4>
-              <div>
-                <span>Baja (0 - 1.5 V)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
-              </div>
-              <div>
-                <span>Normal (1.5 - 2.5 V)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
-              </div>
-              <div>
-                <span>Alta (> 2.5 V)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
-              </div>              
-            `;
+            div.innerHTML += `<h4>Niveles de contaminacion atmosferica</h4>${createLevelLayer('aire')}`;
             break;
           case 'Contaminacion auditiva':
-            div.innerHTML += `
-              <h4>Niveles de contaminacion auditiva</h4>
-              <div>
-                <span>Baja (0 - 1.8 V)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.low}"></div>
-              </div>
-              <div>
-                <span>Normal (1.8 - 2.5 V)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.normal}"></div>
-              </div>
-              <div>
-                <span>Alta (> 2.5 V)</span>
-                <div class="icon" style="background: ${CIRCLE_COLORS.high}"></div>
-              </div>              
-            `;
+            div.innerHTML += `<h4>Niveles de contaminacion auditiva</h4>${createLevelLayer('sonido')}`;
             break;
         }
+
         return div;
       };
 

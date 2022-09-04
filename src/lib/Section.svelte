@@ -1,13 +1,11 @@
-<script>
+<script lang="ts">
   export let title = 'Ejemplo de titulo';
 </script>
-
 
 <section>
   <h1>{title}</h1>
   <slot />
 </section>
-
 
 <style>
   section {

@@ -1,37 +1,17 @@
-<script>
-  import { goto } from '$app/navigation';
+<script lang="ts">
   import { createUserWithEmail } from '$lib/firebase/services';
-  import { onMount } from 'svelte';
-  import authChanged from '../authVerification';
 
   let name = '';
   let email = '';
   let password = '';
-  let unsuscriptionAuthState = undefined;
-
-  const startUserVerification = () => {
-    unsuscriptionAuthState = authChanged();
-  };
 
   const handleSubmintSignin = async () => {
-    unsuscriptionAuthState();
+    const { success } = await createUserWithEmail(email, password, name);
 
-    const userData = { name, email, password };
-    const { success, user, err } = await createUserWithEmail(userData).catch(
-      (err) => err
-    );
-
-    if (success) {
-      let userUrl = `/${user.user.displayName
-        .replace(/\s+/g, '')
-        .toLowerCase()}/`;
-      await goto(userUrl);
-    } else {
-      alert(err);
+    if (!success) {
+      alert('Error al crear cuenta');
     }
   };
-
-  onMount(startUserVerification);
 </script>
 
 <svelte:head>

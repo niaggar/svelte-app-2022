@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import ButtonAction from '$lib/ButtonAction.svelte';
   import { getAuth, signOut } from 'firebase/auth';
 
@@ -7,7 +7,7 @@
 
     signOut(auth)
       .then(() => console.log('logout'))
-      .catch((error) => console.log(error));
+      .catch(() => console.log('error'));
   };
 </script>
 

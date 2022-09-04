@@ -1,57 +1,40 @@
-<script>
+<script lang="ts">
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
-  import { getAuth, onAuthStateChanged } from 'firebase/auth';
+  import { UserInfo } from '$lib/stores/userStores';
+  import NavLink from '$lib/NavLink.svelte';
   import { onMount } from 'svelte';
 
-  import NavLink from '$lib/NavLink.svelte';
-
   let isTheUserCorrect = false;
-  let verifyUserPromise = Promise.resolve({ isOkey: false });
 
-  const startUserVerification = () => {
-    let auth = getAuth();
 
-    verifyUserPromise = new Promise((resolve, reject) => {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          let name = user.displayName || '';
-
-          if (name.length > 0) {
-            let userUrl = name.replace(/\s+/g, '').toLowerCase();
-            let path = $page.url.pathname;
-
-            if (path.includes(userUrl)) {
-              isTheUserCorrect = true;
-              return resolve({ isOkey: true, user: userUrl });
-            }
-          }
-        }
-
-        await goto('/');
-      });
+  onMount(() => {
+    UserInfo.subscribe(({ isLoggin, userUrl }) => {
+      if (!isLoggin) {
+        goto('/');
+      }
+      else {
+        let path = $page.url.pathname;
+        isTheUserCorrect = path.includes(userUrl!);
+      }
     });
-  };
-
-  onMount(startUserVerification);
+  });
 </script>
 
 <svelte:head>
   <title>EcoBox {isTheUserCorrect ? `: ${$page.params.user}` : ''}</title>
 </svelte:head>
 
-{#await verifyUserPromise}
+{#if $UserInfo.isLoggin}
+  <NavLink userRef={$UserInfo.userUrl} />
+  <main>
+    <slot />
+  </main>
+{:else}
   <main>
     <h1>Verificando usuario</h1>
   </main>
-{:then { isOkey, user }}
-  {#if isOkey}
-    <NavLink userRef={user} />
-    <main>
-      <slot />
-    </main>
-  {/if}
-{/await}
+{/if}
 
 <style>
   main {

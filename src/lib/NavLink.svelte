@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import { page } from '$app/stores';
 
   export let userRef = '';
@@ -7,8 +7,8 @@
 <nav>
   <div>
     <a
-      href={'/' + userRef + '/home'}
-      class:active={$page.url.pathname === '/' + userRef + '/home'}
+      href={`${userRef}/home`}
+      class:active={$page.url.pathname === `${userRef}/home`}
     >
       <svg
         width="100"
@@ -28,8 +28,8 @@
     </a>
 
     <a
-      href={'/' + userRef + '/mapa'}
-      class:active={$page.url.pathname === '/' + userRef + '/mapa'}
+      href={`${userRef}/mapa`}
+      class:active={$page.url.pathname === `${userRef}/mapa`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -53,8 +53,8 @@
     </a>
 
     <a
-      href={'/' + userRef + '/estadisticas'}
-      class:active={$page.url.pathname === '/' + userRef + '/estadisticas'}
+      href={`${userRef}/estadisticas`}
+      class:active={$page.url.pathname === `${userRef}/estadisticas`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -75,8 +75,8 @@
     </a>
 
     <a
-      href={'/' + userRef + '/ajustes'}
-      class:active={$page.url.pathname === '/' + userRef + '/ajustes'}
+      href={`${userRef}/ajustes`}
+      class:active={$page.url.pathname === `${userRef}/ajustes`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
