@@ -1,9 +1,12 @@
 <script type="ts">
   import { goto } from '$app/navigation';
   import { UserInfo } from '$lib/stores/userStores';
+  import { onMount } from 'svelte';
 
-  UserInfo.subscribe(({ isLoggin, userUrl}) => {
-    if (isLoggin) goto(`${userUrl}/home`);
-    else goto('/');
-  });
+  onMount(() =>
+    UserInfo.subscribe(({ isLoggin, userUrl }) => {
+      if (isLoggin) goto(`${userUrl}/home`);
+      else goto('/');
+    })
+  );
 </script>

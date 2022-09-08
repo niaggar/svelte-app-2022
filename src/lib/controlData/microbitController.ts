@@ -1,5 +1,4 @@
 import { BluetoothStore } from '$lib/stores/bluetoothStore';
-import type { Meassure } from '$lib/types/meassureType';
 import { get } from 'svelte/store';
 
 
