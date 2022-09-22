@@ -47,31 +47,31 @@
 
   // Controla el boton para tomar una nueva medida, enviando un mensaje al microbit
   const handleNewMeasureClick = async () => {
-    getLastMeasurementPromise = new Promise(async (res, rej) => {
-      let userUid = getAuth().currentUser.uid;
+    // getLastMeasurementPromise = new Promise(async (res, rej) => {
+    //   let userUid = getAuth().currentUser.uid;
 
-      let { city, country } = await getUserCity();
-      let values = createRandomValues();
-      let newMeasure = await createNewMeassure({
-        city,
-        country,
-        data: values,
-      }).catch((err) => rej({ err }));
+    //   let { city, country } = await getUserCity();
+    //   let values = createRandomValues();
+    //   let newMeasure = await createNewMeassure({
+    //     city,
+    //     country,
+    //     data: values,
+    //   }).catch((err) => rej({ err }));
 
-      await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch(
-        (err) => rej({ err })
-      );
-      await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
+    //   await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch(
+    //     (err) => rej({ err })
+    //   );
+    //   await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
 
-      res({ data: [newMeasure] });
-    });
+    //   res({ data: [newMeasure] });
+    // });
 
-    // let state = await connectToMicrobit(handleMessageFromMicrobit);
+    let state = await connectToMicrobit(handleMessageFromMicrobit);
 
-    // if (state)
-    //   sendMessageToMicrobit('read\n');
-    // else
-    //   alert('No se pudo conectar con el microbit');
+    if (state)
+      sendMessageToMicrobit('read\n');
+    else
+      alert('No se pudo conectar con el microbit');
   };
 
   // Controlador de los datos enviados por la microbit
