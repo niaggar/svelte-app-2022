@@ -43,10 +43,9 @@
 
   // Controla el boton para tomar una nueva medida, enviando un mensaje al microbit
   const handleNewMeasureClick = async () => {
+    alert(variables.MODE_MICROBIT)
     // Segun el modo de funcionamiento, crear una medida aleatoria o enviar un mensaje al microbit
     if (variables.MODE_MICROBIT === 'bluetooth') {
-      
-      
       if ($BluetoothStore != null) 
         sendMessageToMicrobit('read\n');
       else {
