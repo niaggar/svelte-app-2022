@@ -25,10 +25,16 @@ export const sendMessageToMicrobit = (message: string) => {
 
 export const connectToMicrobit = async (action: (e: Event) => any) => {
   try {
+    alert('Connecting to microbit...');
+
+    console.log(navigator.bluetooth);
+
     uBitDevice = await navigator.bluetooth.requestDevice({
       filters: [{ namePrefix: 'BBC micro:bit' }],
       optionalServices: [UART_SERVICE_UUID],
     });
+
+    alert('Connected to ');
 
     if (uBitDevice.gatt == undefined) return;
 
@@ -45,6 +51,7 @@ export const connectToMicrobit = async (action: (e: Event) => any) => {
 
     return true;
   } catch (err) {
+    alert('Error: ' + err);
     return false;
   }
 };
