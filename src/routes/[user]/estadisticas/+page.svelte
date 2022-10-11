@@ -1,124 +1,123 @@
-<script>
-  import {
-    getUserData,
-    saveUserData,
-    getUserCities,
-    saveGlobalData,
-  } from '$lib/firebase/firestore.js';
-  import {
-    averageData,
-    convertRawData,
-    createNewMeassure,
-  } from '$lib/controlData/convertData.js';
-  import {
-    connectToMicrobit,
-    sendMessageToMicrobit,
-  } from '$lib/controlData/microbitController.js';
-  import { createRandomValues } from '$lib/controlData/createRandomData.js';
+<script lang="ts">
+  import { getUserData, saveUserData, getUserCities, saveGlobalData } from '$lib/firebase/firestore';
+  import { averageData, convertRawData, createNewMeassure } from '$lib/controlData/controlData';
+  import { connectToMicrobit, sendMessageToMicrobit } from '$lib/controlData/microbitController';
+  import { createRandomValues } from '$lib/controlData/createRandomData';
   import { getUserCity } from '$lib/firebase/services';
-  import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
-
   import Card from '$lib/Card.svelte';
   import Section from '$lib/Section.svelte';
   import DataTable from '$lib/DataTable.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
   import CitiesSlider from '$lib/CitiesSlider.svelte';
+  import { UserInfo } from '$lib/stores/userStores';
+  import type { Meassure, MeassurePack } from '$lib/types/meassureType';
+  import type { Timestamp } from 'firebase/firestore';
+  import { BluetoothStore } from '$lib/stores/bluetoothStore';
+  import { variables } from '$lib/variables';
 
-  let getLastMeasurementPromise = Promise.resolve({ data: [] });
-  let getHistoryMeasurementsPromise = Promise.resolve({ data: [] });
-  let getCitiesPromise = Promise.resolve({ data: [] });
-  let newRawData = [];
 
+
+  let getLastMeasurementPromise: Promise<{ success: boolean, data?: MeassurePack[] }> = Promise.resolve({ success: true });
+  let getCitiesPromise: Promise<{ success: boolean, cities?: { cityName: string, country: string, update: Timestamp }[] }> = Promise.resolve({ success: true });
+  let getHistoryMeasurementsPromise: Promise<{ success: boolean, meassures: Meassure[] }> = Promise.resolve({ success: true, meassures: [] });
+
+
+  
   // Controla la actualizacion del historico de mediciones
   const handleHistoryClick = () => {
-    let user = getAuth().currentUser;
+    let uid = $UserInfo.user?.uid!;
 
     getHistoryMeasurementsPromise = new Promise(async (res, rej) => {
-      let { city, country } = await getUserCity();
-      let r = await getUserData({ uid: user.uid, city: city, count: 5 }).catch(
-        (err) => rej({ err })
-      );
+      let { city } = await getUserCity();
+      let { success, data } = await getUserData(uid, city, 5);
 
-      let values = r.data.map((d) => d.data);
-      res({ data: averageData(values) });
+      if (!success) res({ success: false, meassures: [] });
+      
+      let values = data!.map((pack) => pack.meassures);
+      let meassures = averageData(values);
+
+      res({ success: true, meassures });
     });
   };
 
   // Controla el boton para tomar una nueva medida, enviando un mensaje al microbit
   const handleNewMeasureClick = async () => {
-    // getLastMeasurementPromise = new Promise(async (res, rej) => {
-    //   let userUid = getAuth().currentUser.uid;
+    // Segun el modo de funcionamiento, crear una medida aleatoria o enviar un mensaje al microbit
+    if (variables.MODE_MICROBIT === 'bluetooth') {
+      
+      
+      if ($BluetoothStore != null) 
+        sendMessageToMicrobit('read\n');
+      else {
+        let state = await connectToMicrobit(handleMessageFromMicrobit);
+        
+        if (state) sendMessageToMicrobit('read\n');
+        else alert('No se pudo conectar con el microbit');
+      }
 
-    //   let { city, country } = await getUserCity();
-    //   let values = createRandomValues();
-    //   let newMeasure = await createNewMeassure({
-    //     city,
-    //     country,
-    //     data: values,
-    //   }).catch((err) => rej({ err }));
-
-    //   await saveUserData({ uid: userUid, city: city, data: newMeasure }).catch(
-    //     (err) => rej({ err })
-    //   );
-    //   await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
-
-    //   res({ data: [newMeasure] });
-    // });
-
-    let state = await connectToMicrobit(handleMessageFromMicrobit);
-
-    if (state)
-      sendMessageToMicrobit('read\n');
-    else
-      alert('No se pudo conectar con el microbit');
+    } else {
+      saveNewMessure();
+    }
   };
 
+  // Controla el mensaje que llega del microbit
+  let newRawData: string[] = [];
+
   // Controlador de los datos enviados por la microbit
-  const handleMessageFromMicrobit = async (event) => {
+  const handleMessageFromMicrobit = async (event: any) => {
     let receivedData = [];
     for (var i = 0; i < event.target.value.byteLength; i++) {
       receivedData[i] = event.target.value.getUint8(i);
     }
 
-    let receivedString = String.fromCharCode
-      .apply(null, receivedData)
-      .replace(/(\r\n|\n|\r)/gm, '');
+    let receivedString = String.fromCharCode.apply(null, receivedData).replace(/(\r\n|\n|\r)/gm, '');
 
-    if (receivedString == 'init') {
+    if (receivedString == 'init')
       newRawData = [];
-    } else if (receivedString == 'end') {
-      getLastMeasurementPromise = new Promise(async (res, rej) => {
-        let userUid = getAuth().currentUser.uid;
-
-        let { city, country } = await getUserCity();
-        let values = await convertRawData(newRawData);
-        let newMeasure = await createNewMeassure({
-          city,
-          country,
-          data: values,
-        }).catch((err) => rej({ err }));
-
-        await saveUserData({
-          uid: userUid,
-          city: city,
-          data: newMeasure,
-        }).catch((err) => rej({ err }));
-        await saveGlobalData({ data: newMeasure }).catch((err) => rej({ err }));
-
-        res({ data: [newMeasure] });
-      });
-    } else {
+    if (receivedString == 'end')      
+      saveNewMessure(newRawData);
+    else
       newRawData.push(receivedString);
-    }
   };
 
-  onMount(async () => {
-    let user = getAuth().currentUser;
+  // Guarda una nueva medida en la base de datos
+  const saveNewMessure = (rawData?: string[]) => {
+    getLastMeasurementPromise = new Promise((res, rej) => {
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        let uid = $UserInfo.user?.uid!;
+        let { latitude, longitude } = position.coords;
 
-    let { city, country } = await getUserCity();
-    getLastMeasurementPromise = getUserData({ uid: user.uid, city: city });
-    getCitiesPromise = getUserCities({ uid: user.uid });
+        let { city, country } = await getUserCity();
+
+
+        // Segun el modo de funcionamiento, se crea una nueva medida
+        let values: Meassure[] = [];
+        if (variables.MODE_MICROBIT === 'bluetooth') {
+          values = convertRawData(rawData!); // Usando los datos del microbit
+        } else {
+          values = createRandomValues();
+        }
+        
+
+        let newMeasure = createNewMeassure(values, city, country, latitude, longitude);
+
+        let { success: saveUserSuccess } = await saveUserData(uid, city, newMeasure);
+        let { success: saveGlobSuccess } = await saveGlobalData(newMeasure);
+
+        if (!saveGlobSuccess) alert('Error al guardar los datos globales');
+        
+        if (saveUserSuccess) res({ success: true, data: [newMeasure] });
+        else res({ success: false });
+      });
+    });
+  }
+
+  onMount(async () => {
+    let { city } = await getUserCity();
+
+    getLastMeasurementPromise = getUserData($UserInfo.user?.uid!, city);
+    getCitiesPromise = getUserCities($UserInfo.user?.uid!);
   });
 </script>
 
@@ -130,29 +129,31 @@
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { data }}
-      {#if data.length > 0}
-        <DataTable data={data[0].data} />
+    {:then { success, data }}
+      {#if success}
+        {#if data && data.length > 0}
+          <DataTable data={data[0].meassures} />
+        {:else}
+          <p>Parece que no hay mediciones almacenadas...</p>
+        {/if}
       {:else}
-        <p>Parece que no hay mediciones almacenadas...</p>
+        <p>Error al cargar la ultima medición</p>
       {/if}
-    {:catch { err }}
-      <p>Error al cargar la ultima medición</p>
     {/await}
   </Card>
 
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { data }}
-      {#if data.length > 0}
-        <p>
-          Ultima medicion realizada el {data[0].createdAt
-            .toDate()
-            .toLocaleString()}
-        </p>
+    {:then { success, data }}
+      {#if success}
+        {#if data && data.length > 0}
+          <p>Ultima medicion realizada el {data[0].createdAt.toDate().toLocaleString()}</p>
+        {:else}
+          <p>No hay mediciones almacenadas</p>
+        {/if}
       {:else}
-        <p>No hay mediciones almacenadas</p>
+        <p>No se pudo obtener los datos</p>
       {/if}
     {/await}
 
@@ -168,9 +169,9 @@
   <Card>
     {#await getHistoryMeasurementsPromise}
       <p>Cargando...</p>
-    {:then { data }}
-      {#if data.length > 0}
-        <DataTable {data} />
+    {:then { success, meassures }}
+      {#if success && meassures.length > 0}
+        <DataTable data={meassures} />
       {:else}
         <p>Actualiza el historico...</p>
       {/if}
@@ -192,15 +193,14 @@
 
     {#await getCitiesPromise}
       <p>Cargando...</p>
-    {:then { data }}
-      {#each data as { cityName, country, update }}
-        <CitiesSlider {cityName} {country} {update} />
-      {/each}
+    {:then { cities }}
+      {#if cities}
+        {#each cities as { cityName, country, update }}
+          <CitiesSlider {cityName} {country} {update} />
+        {/each}
+      {/if}
     {:catch { err }}
       <p>Error al cargar las ciudades</p>
     {/await}
-  </Card>
+  </Card> 
 </Section>
-
-<style>
-</style>

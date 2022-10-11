@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   export let visibleText = '';
   export let type = '';
   export let action = () => {};

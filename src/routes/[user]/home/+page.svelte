@@ -1,30 +1,33 @@
-<script>
+<script lang="ts">
   import Card from '$lib/Card.svelte';
   import Section from '$lib/Section.svelte';
   import DataTable from '$lib/DataTable.svelte';
   import ButtonLink from '$lib/ButtonLink.svelte';
   import ButtonAction from '$lib/ButtonAction.svelte';
-  import { getUserData } from '$lib/firebase/firestore.js';
+  import { getUserData } from '$lib/firebase/firestore';
   import { getUserCity } from '$lib/firebase/services';
-  import { variables } from '$lib/variables';
-  import { getAuth } from 'firebase/auth';
   import { onMount } from 'svelte';
+  import { UserInfo } from '$lib/stores/userStores';
+  import type { MeassurePack } from '$lib/types/meassureType';
 
-  let getLastMeasurementPromise = Promise.resolve({ data: [] });
+  let getLastMeasurementPromise: Promise<{ success: boolean, data?: MeassurePack[] }> = Promise.resolve({ success: true, data: [] });
   let userRouteToDoNewMeasurement = '';
   let seeTutorial = false;
 
   onMount(async () => {
-    let user = getAuth().currentUser;
+    userRouteToDoNewMeasurement = `${$UserInfo.userUrl}/estadisticas`;
 
-    userRouteToDoNewMeasurement = `/${user.displayName
-      .replace(/\s+/g, '')
-      .toLowerCase()}/estadisticas`;
+    let { success, city } = await getUserCity();
+    if (success) {
+      getLastMeasurementPromise = getUserData($UserInfo.user?.uid!, city);
 
-    let { city, country } = await getUserCity();
-    getLastMeasurementPromise = getUserData({ uid: user.uid, city });
+      let response = await getLastMeasurementPromise;
+
+      console.log(response);
+    }
   });
 </script>
+
 
 <Section title="Bienvenida">
   <Card>
@@ -103,37 +106,37 @@
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { data }}
-      {#if data.length > 0}
-        <DataTable data={data[0].data} />
+    {:then { success, data }}
+      {#if success}
+        {#if data && data.length > 0}
+          <DataTable data={data[0].meassures} />
+        {:else}
+          <p>Parece que no hay mediciones almacenadas...</p>
+        {/if}
       {:else}
-        <p>Parece que no hay mediciones almacenadas...</p>
+        <p>No se pudo obtener los datos</p>
       {/if}
-    {:catch { err }}
-      <p>Error al cargar la ultima medición</p>
     {/await}
   </Card>
 
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { data }}
-      {#if data.length > 0}
-        <p>
-          Ultima medicion realizada el {data[0].createdAt
-            .toDate()
-            .toLocaleString()}
-        </p>
-      {:else}
+    {:then { success, data }}
+      {#if success}
+        {#if data && data.length > 0}
+          <p>Ultima medicion realizada el {data[0].createdAt.toDate().toLocaleString()}</p>
+        {:else}
         <p>
           Tadavia no tienes mediciones, dirigete a la pagina de mediciones y
           realiza tu primera!
         </p>
+        {/if}
+      {:else}
+        <p>No se pudo obtener los datos</p>
       {/if}
-    {:catch { err }}
-      <p>Error al cargar la ultima medición</p>
     {/await}
-
+    
     <ButtonLink
       route={userRouteToDoNewMeasurement}
       visibleText="Ir a realizar una medición ahora"
@@ -142,21 +145,7 @@
   </Card>
 </Section>
 
-<!-- <Section title="Noticias">
-  <Card>
-    {#await getLastMeasurementPromise}
-      <p>Cargando...</p>
-    {:then { data }}
-      {#if data.length > 0}
-        <DataTable data={data[0].data} />
-      {:else}
-        <p>Parece que no hay mediciones almacenadas...</p>
-      {/if}
-    {:catch { err }}
-      <p>Error al cargar la ultima medición</p>
-    {/await}
-  </Card>
-</Section> -->
+
 <style>
   dt {
     font-size: 1rem;

@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import ButtonLink from '$lib/ButtonLink.svelte'
 </script>
 

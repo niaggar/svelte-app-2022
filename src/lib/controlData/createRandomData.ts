@@ -1,41 +1,37 @@
+import type { Meassure } from '$lib/types/meassureType';
 
 
-export function createRandomValues() {
+export function createRandomValues(): Meassure[] {
   return [
     {
-      type: 'temperatura',
+      name: 'temperatura',
       value: random(-200, 400) / 10,
       unit: 'C',
-      level: 'none',
     },
     {
-      type: 'humedad',
+      name: 'humedad',
       value: random(0, 100),
       unit: '%',
-      level: 'none',
     },
     {
-      type: 'aire',
+      name: 'aire',
       value: random(0, 300) / 100,
       unit: 'volt',
-      level: 'none',
     },
     {
-      type: 'sonido',
+      name: 'sonido',
       value: random(0, 300) / 100,
       unit: 'volt',
-      level: 'none',
     },
     {
-      type: 'uv',
+      name: 'uv',
       value: random(0, 10),
       unit: 'UV (mW/cm^2)',
-      level: 'none',
     },
   ];
 }
 
 
-function random(min, max) {
+function random(min: number, max: number) {
   return Math.floor((Math.random() * (max - min + 1)) + min);
 }
