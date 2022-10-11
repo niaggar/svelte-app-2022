@@ -46,15 +46,10 @@
     alert(variables.MODE_MICROBIT)
     // Segun el modo de funcionamiento, crear una medida aleatoria o enviar un mensaje al microbit
     if (variables.MODE_MICROBIT === 'bluetooth') {
-      if ($BluetoothStore != null) 
-        sendMessageToMicrobit('read\n');
-      else {
-        let state = await connectToMicrobit(handleMessageFromMicrobit);
-        
-        if (state) sendMessageToMicrobit('read\n');
-        else alert('No se pudo conectar con el microbit');
-      }
-
+      let state = await connectToMicrobit(handleMessageFromMicrobit);
+      
+      if (state) sendMessageToMicrobit('read\n');
+      else alert('No se pudo conectar con el microbit');
     } else {
       saveNewMessure();
     }

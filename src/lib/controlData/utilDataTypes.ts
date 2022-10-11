@@ -64,12 +64,12 @@ export const LEVELS = {
   'aire': {
     'low': 0,
     'normal': 1.5,
-    'high': 2.5,
+    'high': 4,
   },
   'sonido': {
     'low': 0,
     'normal': 1.8,
-    'high': 2.5,
+    'high': 3.5,
   },
   'uv': {
     'low': 0,
