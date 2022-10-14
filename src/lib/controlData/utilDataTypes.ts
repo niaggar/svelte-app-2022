@@ -68,8 +68,8 @@ export const LEVELS = {
   },
   'sonido': {
     'low': 0,
-    'normal': 1.8,
-    'high': 3.5,
+    'normal': 300,
+    'high': 650,
   },
   'uv': {
     'low': 0,
@@ -81,31 +81,31 @@ export const LEVELS = {
 export const getColor = (name: Sensor, value: number) => {
   const tempColor = (value: number) => {
     if (value > LEVELS.temperatura.high) return '#F3643F'
-    if (value > LEVELS.temperatura.normal) return '#F1C24A'
+    else if (value > LEVELS.temperatura.normal) return '#F1C24A'
     else return '#28706C'
   }
 
   const humeColor = (value: number) => {
     if (value > LEVELS.humedad.high) return '#F3643F'
-    if (value > LEVELS.humedad.normal) return '#F1C24A'
+    else if (value > LEVELS.humedad.normal) return '#F1C24A'
     else return '#28706C'
   }
 
   const aireColor = (value: number) => {
     if (value > LEVELS.aire.high) return '#F3643F'
-    if (value > LEVELS.aire.normal) return '#F1C24A'
+    else if (value > LEVELS.aire.normal) return '#F1C24A'
     else return '#28706C'
   }
 
   const audiColor = (value: number) => {
     if (value > LEVELS.sonido.high) return '#F3643F'
-    if (value > LEVELS.sonido.normal) return '#F1C24A'
+    else if (value > LEVELS.sonido.normal) return '#F1C24A'
     else return '#28706C'
   }
 
   const uvColor = (value: number) => {
     if (value > LEVELS.uv.high) return '#F3643F'
-    if (value > LEVELS.uv.normal) return '#F1C24A'
+    else if (value > LEVELS.uv.normal) return '#F1C24A'
     else return '#28706C'
   }
 

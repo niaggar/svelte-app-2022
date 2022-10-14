@@ -42,11 +42,11 @@
         <div class="progress">
           <div
             class="progress-value"
-            style="width: {Number(value) * (100 / 3)}%;"
+            style="width: {Number(value) * (100 / 5)}%;"
           />
         </div>
         <p class="value">
-          {value > 1.7 ? 'Alto' : value > 1.5 ? 'Normal' : 'Bajo'}
+          {value > 4 ? 'Alto' : value > 1.5 ? 'Normal' : 'Bajo'}
         </p>
       </div>
     </div>
@@ -74,15 +74,15 @@
         <div class="progress">
           <div
             class="progress-value"
-            style="width: {(Number(value) - 1) * (100 / 2)}%;"
+            style="width: {(Number(value)) * (100 / 1023)}%;"
           />
         </div>
         <p class="value">
-          {value > 2.5
+          {value > 750
             ? 'Muy alto'
-            : value > 1.8
+            : value > 650
             ? 'Alto'
-            : value > 1.5
+            : value > 300
             ? 'Normal'
             : 'Bajo'}
         </p>
