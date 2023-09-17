@@ -1,4 +1,4 @@
-import type { MeassurePack } from '$lib/types/meassureType';
+import type { City, MeassurePack, ResponseData } from '$lib/types/meassureType';
 import type { Geopoint } from 'geofire-common';
 import type { DocumentData, Timestamp } from 'firebase/firestore';
 import {
@@ -24,23 +24,23 @@ import './config.ts';
 const db = getFirestore();
 
 
-export function getUserData(uid: string, city: string, count: number = 1): Promise<{ success: boolean, data?: MeassurePack[] }> {
+export function getUserData(uid: string, city: string, count: number = 1): Promise<ResponseData<MeassurePack[]>> {
   return new Promise(async (res, rej) => {
     const userDataRef = collection(db, 'user-data', uid, city);
 
     const q = query(userDataRef, orderBy('createdAt', 'desc'), limit(count));
     const docs = await getDocs(q);
 
-    if (docs == null) return res({ success: false });
+    if (docs == null) return res({ status: false });
 
     const data = docs.docs.map(doc => doc.data());
 
-    res({ success: true, data: data as MeassurePack[] });
+    res({ status: true, data: data as MeassurePack[] });
   });
 }
 
 
-export function getUserCities(uid: string): Promise<{ success: boolean, cities?: { cityName: string, country: string, update: Timestamp }[] }> {
+export function getUserCities(uid: string): Promise<ResponseData<City[]>> {
   return new Promise(async (res, rej) => {
     const userDocRef = doc(db, 'user-data', uid);
     const docsResponse = await getDoc(userDocRef);
@@ -51,20 +51,20 @@ export function getUserCities(uid: string): Promise<{ success: boolean, cities?:
       const citiesValues = Object.entries(data);
       const cities = citiesValues.map(([key, value]) => value as { cityName: string, country: string, update: Timestamp });
 
-      return res({ success: true, cities: cities });
+      return res({ status: true, data: cities as City[] });
     }
 
-    res({ success: false });
+    res({ status: false });
   });
 }
 
 
-export function saveUserData(uid: string, city: string, newMessure: MeassurePack): Promise<{ success: boolean }> {
+export function saveUserData(uid: string, city: string, newMessure: MeassurePack): Promise<ResponseData<boolean>> {
   return new Promise(async (res, rej) => {
     const userDataRef = collection(db, 'user-data', uid, city);
     const userDocRef = doc(db, 'user-data', uid);
 
-    await addDoc(userDataRef, newMessure).catch((err) => rej({ success: false }));
+    await addDoc(userDataRef, newMessure).catch((err) => rej({ status: false }));
     await updateDoc(userDocRef, {
       [city]: {
         cityName: city,
@@ -79,25 +79,25 @@ export function saveUserData(uid: string, city: string, newMessure: MeassurePack
       }
     }));
 
-    res({ success: true });
+    res({ status: true });
   });
 }
 
 
-export function saveGlobalData(data: MeassurePack): Promise<{ success: boolean }> {
+export function saveGlobalData(data: MeassurePack): Promise<ResponseData<boolean>> {
   return new Promise(async (res, rej) => {
     const globalDataRef = collection(db, 'global-data');
 
     await addDoc(globalDataRef, data).catch((err) =>
-      rej({ success: false })
+      rej({ status: false })
     );
 
-    res({ success: true });
+    res({ status: true });
   });
 }
 
 
-export function getDataUsingGeoHash(lat: number, long: number, count: number = 1): Promise<{ success: boolean, data?: MeassurePack[] }> {
+export function getDataUsingGeoHash(lat: number, long: number, count: number = 1): Promise<ResponseData<MeassurePack[]>> {
   return new Promise(async (res, rej) => {
     const globalDataRef = collection(db, 'global-data');
     const center: Geopoint = [lat, long];
@@ -118,7 +118,7 @@ export function getDataUsingGeoHash(lat: number, long: number, count: number = 1
     }
 
     const snapshots = await Promise.all(promises).catch(() => null);
-    if (snapshots == null) return res({ success: false });
+    if (snapshots == null) return res({ status: false });
 
 
     let documents: DocumentData[] = [];
@@ -155,6 +155,6 @@ export function getDataUsingGeoHash(lat: number, long: number, count: number = 1
       }
     }
 
-    res({ success: true, data: matchingDocs as MeassurePack[] });
+    res({ status: true, data: matchingDocs as MeassurePack[] });
   });
 }

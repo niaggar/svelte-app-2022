@@ -8,22 +8,15 @@
   import { getUserCity } from '$lib/firebase/services';
   import { onMount } from 'svelte';
   import { UserInfo } from '$lib/stores/userStores';
-  import type { MeassurePack } from '$lib/types/meassureType';
+  import type { MeassurePack, ResponseData } from '$lib/types/meassureType';
 
-  let getLastMeasurementPromise: Promise<{ success: boolean, data?: MeassurePack[] }> = Promise.resolve({ success: true, data: [] });
-  let userRouteToDoNewMeasurement = '';
+  let getLastMeasurementPromise: Promise<ResponseData<MeassurePack[]>> = Promise.resolve({ status: true });
   let seeTutorial = false;
 
   onMount(async () => {
-    userRouteToDoNewMeasurement = `${$UserInfo.userUrl}/estadisticas`;
-
     let { success, city } = await getUserCity();
     if (success) {
       getLastMeasurementPromise = getUserData($UserInfo.user?.uid!, city);
-
-      let response = await getLastMeasurementPromise;
-
-      console.log(response);
     }
   });
 </script>
@@ -106,8 +99,8 @@
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { success, data }}
-      {#if success}
+    {:then { status, data }}
+      {#if status}
         {#if data && data.length > 0}
           <DataTable data={data[0].meassures} />
         {:else}
@@ -122,8 +115,8 @@
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { success, data }}
-      {#if success}
+    {:then { status, data }}
+      {#if status}
         {#if data && data.length > 0}
           <p>Ultima medicion realizada el {data[0].createdAt.toDate().toLocaleString()}</p>
         {:else}
@@ -138,7 +131,7 @@
     {/await}
     
     <ButtonLink
-      route={userRouteToDoNewMeasurement}
+      route={'estadisticas'}
       visibleText="Ir a realizar una medición ahora"
       type="yellow"
     />

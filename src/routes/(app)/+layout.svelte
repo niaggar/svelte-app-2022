@@ -1,32 +1,33 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import '$lib/firebase/config';
+
   import { goto } from '$app/navigation';
   import { UserInfo } from '$lib/stores/userStores';
+  import { getAuth, onAuthStateChanged } from 'firebase/auth';
   import NavLink from '$lib/NavLink.svelte';
   import { onMount } from 'svelte';
 
-  let isTheUserCorrect = false;
-
-
   onMount(() => {
-    UserInfo.subscribe(({ isLoggin, userUrl }) => {
-      if (!isLoggin) {
-        goto('/');
+    const auth = getAuth();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        UserInfo.set({ isLoggin: true, user });
       }
       else {
-        let path = $page.url.pathname;
-        isTheUserCorrect = path.includes(userUrl!);
+        UserInfo.set({ isLoggin: false });
+        goto('login');
       }
     });
   });
 </script>
 
 <svelte:head>
-  <title>EcoBox {isTheUserCorrect ? `: ${$page.params.user}` : ''}</title>
+  <title>EcoBox</title>
 </svelte:head>
 
 {#if $UserInfo.isLoggin}
-  <NavLink userRef={$UserInfo.userUrl} />
+  <NavLink />
+
   <main>
     <slot />
   </main>

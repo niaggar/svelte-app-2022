@@ -1,14 +1,14 @@
 <script lang="ts">
   import { page } from '$app/stores';
 
-  export let userRef = '';
+  $: console.log($page.url.pathname);
 </script>
 
 <nav>
   <div>
     <a
-      href={`${userRef}/home`}
-      class:active={$page.url.pathname === `${userRef}/home`}
+      href={`/`}
+      class:active={$page.url.pathname === `/`}
     >
       <svg
         width="100"
@@ -28,8 +28,8 @@
     </a>
 
     <a
-      href={`${userRef}/mapa`}
-      class:active={$page.url.pathname === `${userRef}/mapa`}
+      href={`mapa`}
+      class:active={$page.url.pathname === `/mapa`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -53,8 +53,8 @@
     </a>
 
     <a
-      href={`${userRef}/estadisticas`}
-      class:active={$page.url.pathname === `${userRef}/estadisticas`}
+      href={`estadisticas`}
+      class:active={$page.url.pathname === `/estadisticas`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -75,8 +75,8 @@
     </a>
 
     <a
-      href={`${userRef}/ajustes`}
-      class:active={$page.url.pathname === `${userRef}/ajustes`}
+      href={`ajustes`}
+      class:active={$page.url.pathname === `/ajustes`}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

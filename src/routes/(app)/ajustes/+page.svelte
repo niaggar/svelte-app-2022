@@ -5,9 +5,7 @@
   const logout = () => {
     const auth = getAuth();
 
-    signOut(auth)
-      .then(() => console.log('logout'))
-      .catch(() => console.log('error'));
+    signOut(auth);
   };
 </script>
 

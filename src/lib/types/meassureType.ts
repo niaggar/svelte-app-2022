@@ -21,3 +21,14 @@ export declare type MeassurePack = {
   createdAt: Timestamp,
   meassures: Meassure[],
 };
+
+export declare type ResponseData<T> = {
+  status: boolean,
+  data?: T,
+};
+
+export declare type City {
+  cityName: string,
+  country: string,
+  update: Timestamp,
+}

@@ -11,16 +11,16 @@
   import ButtonAction from '$lib/ButtonAction.svelte';
   import CitiesSlider from '$lib/CitiesSlider.svelte';
   import { UserInfo } from '$lib/stores/userStores';
-  import type { Meassure, MeassurePack } from '$lib/types/meassureType';
+  import type { City, Meassure, MeassurePack, ResponseData } from '$lib/types/meassureType';
   import type { Timestamp } from 'firebase/firestore';
   import { BluetoothStore } from '$lib/stores/bluetoothStore';
   import { variables } from '$lib/variables';
 
 
 
-  let getLastMeasurementPromise: Promise<{ success: boolean, data?: MeassurePack[] }> = Promise.resolve({ success: true });
-  let getCitiesPromise: Promise<{ success: boolean, cities?: { cityName: string, country: string, update: Timestamp }[] }> = Promise.resolve({ success: true });
-  let getHistoryMeasurementsPromise: Promise<{ success: boolean, meassures: Meassure[] }> = Promise.resolve({ success: true, meassures: [] });
+  let getLastMeasurementPromise: Promise<ResponseData<MeassurePack[]>> = Promise.resolve({ status: true });
+  let getCitiesPromise: Promise<ResponseData<City[]>> = Promise.resolve({ status: true });
+  let getHistoryMeasurementsPromise: Promise<ResponseData<Meassure[]>> = Promise.resolve({ status: true, data: [] });
 
 
   
@@ -30,14 +30,14 @@
 
     getHistoryMeasurementsPromise = new Promise(async (res, rej) => {
       let { city } = await getUserCity();
-      let { success, data } = await getUserData(uid, city, 5);
+      let { status, data } = await getUserData(uid, city, 5);
 
-      if (!success) res({ success: false, meassures: [] });
+      if (!status) res({ status: false, data: [] });
       
       let values = data!.map((pack) => pack.meassures);
       let meassures = averageData(values);
 
-      res({ success: true, meassures });
+      res({ status: true, data: meassures });
     });
   };
 
@@ -96,13 +96,13 @@
 
         let newMeasure = createNewMeassure(values, city, country, latitude, longitude);
 
-        let { success: saveUserSuccess } = await saveUserData(uid, city, newMeasure);
-        let { success: saveGlobSuccess } = await saveGlobalData(newMeasure);
+        let { status: saveUserSuccess } = await saveUserData(uid, city, newMeasure);
+        let { status: saveGlobSuccess } = await saveGlobalData(newMeasure);
 
         if (!saveGlobSuccess) alert('Error al guardar los datos globales');
         
-        if (saveUserSuccess) res({ success: true, data: [newMeasure] });
-        else res({ success: false });
+        if (saveUserSuccess) res({ status: true, data: [newMeasure] });
+        else res({ status: false });
       });
     });
   }
@@ -123,8 +123,8 @@
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { success, data }}
-      {#if success}
+    {:then { status, data }}
+      {#if status}
         {#if data && data.length > 0}
           <DataTable data={data[0].meassures} />
         {:else}
@@ -139,8 +139,8 @@
   <Card>
     {#await getLastMeasurementPromise}
       <p>Cargando...</p>
-    {:then { success, data }}
-      {#if success}
+    {:then { status, data }}
+      {#if status}
         {#if data && data.length > 0}
           <p>Ultima medicion realizada el {data[0].createdAt.toDate().toLocaleString()}</p>
         {:else}
@@ -163,9 +163,9 @@
   <Card>
     {#await getHistoryMeasurementsPromise}
       <p>Cargando...</p>
-    {:then { success, meassures }}
-      {#if success && meassures.length > 0}
-        <DataTable data={meassures} />
+    {:then { status, data }}
+      {#if status && data && data.length > 0}
+        <DataTable data={data} />
       {:else}
         <p>Actualiza el historico...</p>
       {/if}
@@ -187,9 +187,9 @@
 
     {#await getCitiesPromise}
       <p>Cargando...</p>
-    {:then { cities }}
-      {#if cities}
-        {#each cities as { cityName, country, update }}
+    {:then { data }}
+      {#if data}
+        {#each data as { cityName, country, update }}
           <CitiesSlider {cityName} {country} {update} />
         {/each}
       {/if}
